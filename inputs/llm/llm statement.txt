@@ -1,0 +1,10 @@
+LLM: ChatGPT-3.5.
+Date: 23 January 2024
+
+
+Me: 
+can you rewrite these words in a scientific report tone? but remember not be too scientific, since these words were provided by a university student, not a 50 year old man.
+On the streets of Toronto, a poignant scene unfolds daily as numerous homeless individuals gather in corners or wait patiently in front of shelters, anticipating a meal. This distressing sight is particularly prevalent in downtown Toronto, where statistical data reveals that over 50% of the city's homeless population gravitates, primarily concentrated in the downtown and east York areas. The rationale behind this concentration lies in the fact that 53% of the shelters in Toronto are strategically positioned in these regions.
+
+ChatGPT3.5: 
+In the urban landscape of Toronto, a poignant tableau unfolds on a daily basis, as a considerable number of individuals experiencing homelessness congregate in specific locales or patiently await services in front of shelters, anticipating sustenance. This noteworthy occurrence is particularly conspicuous within downtown Toronto, where empirical data indicates that more than half of the city's homeless population tends to concentrate, with a primary focus on the downtown and east York areas. This concentration aligns with the strategic placement of 53% of shelters within these regions.
