@@ -1,17 +1,18 @@
 ---
 #### Preamble ####
-# Purpose: Downloads and saves the data from Toronto Opendata
+# Purpose: Download and save the shelter flow data from Toronto Opendata
 # Author: Yiyi Feng
 # Date: 3 March 2024
-# Contact: yiyi.feng@mail.utoronto.ca
+# Contact: yiyi.feng@mail.utoronto.ca, lindayx.sun@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: None
-# Any other information needed? Nope
+# Pre-requisites: none. 
+#Other information: Need to install packages "opendatatoronto", "readr", and "dplyr"
 ---
 
 #### Workspace setup ####
 library(opendatatoronto)
 library(dplyr)
+library(readr)
 
 #### Download data ####
 
@@ -31,7 +32,7 @@ the_raw_data#show the whole raw data for checking
 #### Save data ####
 write_csv(
   x = the_raw_data,
-  file = "../inputs/data/raw_data.csv"
+  file = "data/raw_data.csv"
 )
 
          
