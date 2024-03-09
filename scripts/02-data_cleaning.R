@@ -49,5 +49,43 @@ write_csv(
   file = "data/cleaned_data.csv"
 )
 
+####summerize data for figure one####
+figone_data <- 
+  cleaned_data |>
+  select(date_mmm_yy, population_group, returned_from_housing, returned_to_shelter, newly_identified, moved_to_housing, became_inactive, actively_homeless)
 
+
+figone_data_clean <- subset(figone_data, figone_data$population_group == "All Population")
+head(figone_data_clean)
+
+figone_data_clean <- figone_data_clean %>% 
+  select(-population_group)
+head(figone_data_clean)
+
+# Extract the year from the date_mmm_yy column
+figone_data_clean$year <- format(figone_data_clean$date_mmm_yy, "%Y")
+
+# Summarize the data by year
+figone_data_clean <- figone_data_clean %>%
+  group_by(year) %>%
+  summarize(
+    returned_from_housing = sum(returned_from_housing),
+    returned_to_shelter = sum(returned_to_shelter),
+    newly_identified = sum(newly_identified),
+    moved_to_housing = sum(moved_to_housing),
+    became_inactive = sum(became_inactive),
+    actively_homeless = sum(actively_homeless)
+  )
+
+# Remove the last row
+figone_data_clean <- figone_data_clean %>% 
+  slice(-n())
+figone_data_clean
+
+
+#### Save data ####
+write_csv(
+  x = figone_data_clean,
+  file = "data/cleaned_data_fig1.csv"
+)
 

@@ -32,28 +32,24 @@ library(ggplot2)
 library(ggpubr)
 library(kableExtra)
 
+
 #### Read data ####
 #Please mute this setwd() function if there's no need to set the working session on your computer. On my side, I have to set this becayse its keep telling me my directory is wrong
 #setwd("C:/Users/kqlqk/Desktop/starter_folder-main/starter_folder-main/scripts")
 
 the_raw_data <-
   read_csv(
-    file = "../../inputs/data/raw_data.csv",
+    file = "data/raw_data.csv",
     show_col_types = FALSE)
 
-cleaned_graph_data_2 <-
+cleaned_data <-
   read_csv(
-    file = "../../outputs/data/analysis_data_2.csv",
+    file = "data/cleaned_data.csv",
     show_col_types = FALSE)
 
-cleaned_graph_data_4 <-
+cleaned_data_figone <-
   read_csv(
-    file = "../../outputs/data/analysis_data_4.csv",
-    show_col_types = FALSE)
-
-cleaned_graph_data_5 <-
-  read_csv(
-    file = "../../outputs/data/analysis_data_5.csv",
+    file = "data/cleaned_data_fig1.csv",
     show_col_types = FALSE)
 
 ```
@@ -89,11 +85,32 @@ Using this cleaned data set, I produced (@fig-tab-one) and (@fig-one) for visual
 #| fig-cap: The average number of people move into shelter per month between 2018 and 2023
 #| echo: false
 
-cleaned_graph_data_2 |>
-  kable(
-    col.names = c("Month", "under_16", "between 16_24", "between 25_44", "between 45_64", "above 65"),
-    digits = 1
-  )
+# Convert 'year' to a factor for proper ordering in the bar chart
+
+cleaned_data_figone$year <- as.factor(cleaned_data_figone$year)
+
+# Plotting with ggplot2
+
+ggplot(cleaned_data_figone, aes(x = year)) +
+
+  geom_bar(aes(y = returned_from_housing), stat = "identity", fill = 'blue') +
+
+  geom_bar(aes(y = returned_to_shelter), stat = "identity", fill = 'red', position = 'stack') +
+
+  geom_bar(aes(y = newly_identified), stat = "identity", fill = 'green', position = 'stack') +
+
+  geom_bar(aes(y = moved_to_housing), stat = "identity", fill = 'orange', position = 'stack') +
+
+  geom_bar(aes(y = became_inactive), stat = "identity", fill = 'purple', position = 'stack') +
+
+  geom_bar(aes(y = actively_homeless), stat = "identity", fill = 'yellow', position = 'stack') +
+
+  labs(x = 'Year', y = 'Number of People', fill = 'Category', title = 'Homelessness Data by Year and Category') +
+
+  theme_minimal() +
+
+  theme(legend.position = "bottom")
+
 ```
 
 ```{r}
