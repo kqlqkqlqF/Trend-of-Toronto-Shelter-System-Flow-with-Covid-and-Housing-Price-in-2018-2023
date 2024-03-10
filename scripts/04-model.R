@@ -3,7 +3,7 @@
 # Purpose: Clean the data download from OpendataToronto to make the 
 #          datas into a uniform and cleaned style
 # Author: Yiyi Feng, Linda Sun
-# Date: 3 March 2024
+# Date: 10 March 2024
 # Contact: yiyi.feng@mail.utoronto.ca, lindayx.sun@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: "data/cleaned_data.csv" file and "data/cleaned_data_fig3.csv" file. 
