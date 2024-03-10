@@ -20,7 +20,6 @@ library(ggpubr)
 library(kableExtra)
 
 #### Read data ####
-
 cleaned_data_figtwo <-
   read_csv(
     file = "data/cleaned_data_fig2.csv",
@@ -52,13 +51,32 @@ for (col_name in colnames(cleaned_data_figtwo)) {
 
 
 
-# Extract predictions from the models
-predictions <- lapply(models, function(model) predict(model, newdata = cleaned_data_figtwo))
 
-# Plotting actual vs predicted values for each column
-par(mfrow=c(3, 3))  # Set up a multi-panel plot
-for (i in 1:length(predictions)) {
-  plot(cleaned_data_figtwo[[i]], predictions[[i]], main = names(predictions)[i],
-       xlab = "Actual", ylab = "Predicted")
-  abline(0, 1, col = "red")  # Add a diagonal line for reference
+generate_predictions <- function(model_info, date) {
+  predictions <- sapply(model_info, function(model) {
+    print(str(model))  # Print the structure of the model object
+    pred <- predict(model$model, newdata = data.frame(date_mmm_yy = date))
+    return(pred)
+  })
+  return(predictions)
 }
+
+# Generate predictions for each age group for each date
+prediction_data <- list()
+for (age_group in names(models)) {
+  print(age_group)  # Print the age group for debugging
+  print(models[[age_group]])  # Print the model object for debugging
+  prediction_data[[age_group]] <- generate_predictions(models[[age_group]], prediction_dates)
+}
+
+# Melt the data frame for plotting
+library(reshape2)
+prediction_data_melted <- melt(prediction_data, id.vars = "date_mmm_yy", variable.name = "age_group", value.name = "predicted_count")
+
+# Plot the predicted counts over time for each age group
+library(ggplot2)
+ggplot(prediction_data_melted, aes(x = date_mmm_yy, y = predicted_count, color = age_group)) +
+  geom_line() +
+  labs(x = "Date", y = "Predicted Count", color = "Age Group") +
+  theme_minimal()
+

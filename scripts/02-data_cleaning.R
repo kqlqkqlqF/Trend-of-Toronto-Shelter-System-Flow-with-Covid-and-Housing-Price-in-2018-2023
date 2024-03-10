@@ -8,7 +8,7 @@
 # License: MIT
 # Pre-requisites: "data/raw_data.csv" file, which is the raw data. 
 #Other information: Need to install packages "knitr", "janitor", "tidyverse", 
-#                   and "lubridate"
+#                   and "lubridate".
 ---
 
 #### Workspace setup ####
@@ -30,7 +30,7 @@ raw_data <-
 loc <- Sys.getlocale("LC_TIME")
 Sys.setlocale("LC_TIME", "C") 
 
-#switch the character time to date and select information needed
+#switch the character formed time to date format and select information needed
 cleaned_data <-
   clean_names(raw_data) |>
   mutate(date_mmm_yy = as.factor(date_mmm_yy)) |>
@@ -39,9 +39,8 @@ cleaned_data <-
   mutate(date_mmm_yy = as.Date(date_mmm_yy, format = "%Y-%m-%d"))
 cleaned_data#take a look at the cleaned data for checking
 
-#set local time back to beggining, please mute this sentence if not needed on your computer
+#set local time back to original setting, please mute this sentence if not needed on your computer
 Sys.setlocale("LC_TIME", loc) 
-
 
 #### Save data ####
 write_csv(
@@ -49,18 +48,22 @@ write_csv(
   file = "data/cleaned_data.csv"
 )
 
-####summerize data for figure one####
+####summarize data for figures####
+
+#clean up and summarize data needed for figure one
+#select needed columns for figure one
 figone_data <- 
   cleaned_data |>
   select(date_mmm_yy, population_group, returned_from_housing, returned_to_shelter, newly_identified, moved_to_housing, became_inactive, actively_homeless)
 
-
+#Only remain the rows containing all population data
 figone_data_clean <- subset(figone_data, figone_data$population_group == "All Population")
-head(figone_data_clean)
+head(figone_data_clean)#Take a look at the data set for checking
 
+#remove the population_group column since it doesn't contain valid data
 figone_data_clean <- figone_data_clean %>% 
   select(-population_group)
-head(figone_data_clean)
+head(figone_data_clean)#Take a look at the data set for checking
 
 # Extract the year from the date_mmm_yy column
 figone_data_clean$year <- format(figone_data_clean$date_mmm_yy, "%Y")
@@ -77,7 +80,7 @@ figone_data_clean <- figone_data_clean %>%
     actively_homeless = sum(actively_homeless)
   )
 
-# Remove the last row
+# Remove the 2024 row since there's only January data for 2024, which can cause statistical inaccuracy
 figone_data_clean <- figone_data_clean %>% 
   slice(-n())
 figone_data_clean
@@ -88,8 +91,8 @@ write_csv(
   file = "data/cleaned_data_fig1.csv"
 )
 
-####summerize data for figure two####
-
+#summarize data for figure two
+#only select the columns needed
 figtwo_data_clean <- 
   cleaned_data |>
   select(date_mmm_yy, population_group,ageunder16, age16_24, age25_44, age45_64, age65over)
@@ -101,25 +104,25 @@ write_csv(
   file = "data/cleaned_data_fig2.csv"
 )
 
-####summerize data for figure three####
-
+#summarize data for figure three
+#select the columns needed
 figthree_data_clean <- 
   cleaned_data |>
   select(date_mmm_yy, population_group,gender_male, gender_female, gender_transgender_non_binary_or_two_spirit)
 figthree_data_clean
 
-# Step 1: Extract year from the date_mmm_yy column
+#extract year from the date_mmm_yy column
 figthree_data_clean <- figthree_data_clean %>%
   mutate(year = lubridate::year(date_mmm_yy))
 
-# Step 2: Group by year and population_group, and summarize the counts
+#group by year and population_group, and summarize the counts
 figthree_data_clean <- figthree_data_clean %>%
   group_by(year, population_group) %>%
   summarize(gender_male = sum(gender_male),
             gender_female = sum(gender_female),
             gender_transgender_non_binary_or_two_spirit = sum(gender_transgender_non_binary_or_two_spirit))
 
-# Remove rows with 2024 or NA in the year column
+#remove rows with 2024 or NA in the year column, same reason as above
 figthree_data_clean <- figthree_data_clean %>%
   filter(!is.na(year) & year != 2024)
 

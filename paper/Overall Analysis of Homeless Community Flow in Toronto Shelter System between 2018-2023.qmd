@@ -1,5 +1,5 @@
 ---
-title: "Overall Analysis of Homeless Community Flow in Toronto Shelter System between 2018-2023"
+title: "Navigating Toronto's Homelessness Landscape: A Comprehensive Data Analysis of Trends, Compositional Shifts, and Projections for the City's Homeless Population Dynamics (2018-2023)"
 author: 
   - Yiyi Feng, Linda Sun
 date: today
@@ -9,7 +9,7 @@ format:
     toc: true
     number-sections: true
 number-sections: true
-abstract: "Homelessness and housing are always a issue in City of Toronto. From 2018 to 2023, this problem could be more extensive due to incresing housing price and pandemic.With Toronto shelter system flow data provided by Opentoronto, we are able to take an overview on the homeless group, and visualize the trend of them. This paper maily focused on a few key aspects of the homeless group:moved in/outtime period, age , gender, and group component."
+abstract: "Our analysis of Toronto's shelter system from 2018 to 2023 reveals shifts in the homeless population composition, including variations among single adults, families, genders, and age groups. We examine population dynamics, highlighting fluctuations in the number of actively homeless individuals and patterns of return to homelessness. Crucially, our predictive modeling forecasts an alarming increase in homelessness in the future. This study underscores the imperative for proactive strategies to address the growing challenges faced by Toronto's homeless community, and unreaveled the composition of homeless community."
 bibliography: references11.bib
 ---
 
@@ -19,10 +19,10 @@ bibliography: references11.bib
 #| message: false
 
 #### Preamble ####
-# Purpose: Writing a paper titled "Overall Analysis of Homeless Community Flow in Toronto Shelter System between 2018-2023"
-# Author: Yiyi Feng
-# Date: Jan 23, 2024
-# Contact: yiyi.feng@mail.utoronto.ca
+# Purpose: Writing a paper titled "Navigating Toronto's Homelessness Landscape: A Comprehensive Data Analysis of Trends, Compositional Shifts, and Projections for the City's Homeless Population Dynamics (2018-2023)"
+# Author: Yiyi Feng, Linda Sun
+# Date: 10 March 2024
+# Contact: yiyi.feng@mail.utoronto.ca, lindayx.sun@mail.utoronto.ca
 
 ####Workspace setup ####
 library(tidyverse)
@@ -33,31 +33,29 @@ library(ggpubr)
 library(kableExtra)
 
 #### Read data ####
-# Set the working directory
-
 the_raw_data <-
   read_csv(
-    file = "data/raw_data.csv",
+    file = "../data/raw_data.csv",
     show_col_types = FALSE)
 
 cleaned_data <-
   read_csv(
-    file = "data/cleaned_data.csv",
+    file = "../data/cleaned_data.csv",
     show_col_types = FALSE)
 
 cleaned_data_figone <-
   read_csv(
-    file = "data/cleaned_data_fig1.csv",
+    file = "../data/cleaned_data_fig1.csv",
     show_col_types = FALSE)
 
 cleaned_data_figtwo <-
   read_csv(
-    file = "data/cleaned_data_fig2.csv",
+    file = "../data/cleaned_data_fig2.csv",
     show_col_types = FALSE)
 
 cleaned_data_figthree <-
   read_csv(
-    file = "data/cleaned_data_fig3.csv",
+    file = "../data/cleaned_data_fig3.csv",
     show_col_types = FALSE)
 ```
 # Introduction [^1]
@@ -89,28 +87,29 @@ Using this cleaned data set, I produced (@fig-tab-one) and (@fig-one) for visual
 
 ```{r}
 #| label: fig-tab-one
-#| fig-cap: The average number of people move into shelter per month between 2018 and 2023
+#| fig-cap: Number of Homeless Individuals Transitioning between Housing, Shelters, and Other Status Within the Toronto Shelter System between 2018 and 2023
 #| echo: false
 
-# Change column names
-colnames(data) <- c("Year", "Returned from Housing", "Returned to Shelter", 
+####generate the first table ####
+# generate new column names
+colnames(cleaned_data_figone) <- c("Year", "Returned from Housing", "Returned to Shelter", 
                     "Newly Identified", "Moved to Housing", "Became Inactive", 
                     "Actively Homeless")
-
-# Create a kable table
-kable(cleaned_data_figone, align = "c", caption = "Shelter System Flow from 2018 to 2023") %>%
+# Create a table using kable
+kable(cleaned_data_figone, align = "c") %>%
   kable_styling(full_width = FALSE) %>%
   row_spec(0, bold = TRUE)  # Bold header row
 ```
 
 ```{r}
 #| label: fig-one
-#| fig-cap: People of different ages moved into shelters between 2018 to 2023 
+#| fig-cap: Trends in the Annual Counts of Homeless Individuals Transitioning within the Toronto Shelter System between 2018 and 2023 
 #| echo: false
 #| message: false
 
+#### Generate the first figure ####
 # Convert year to factor to maintain ordering on x-axis
-cleaned_data_figone$year <- factor(cleaned_data_figone$year)
+cleaned_data_figone$year <- factor(cleaned_data_figone$Year)
 
 # Reshape data from wide to long format for ggplot
 cleaned_data_figone_long <- tidyr::pivot_longer(cleaned_data_figone, 
@@ -133,11 +132,11 @@ ggplot(cleaned_data_figone_long, aes(x = year, y = Value, color = Category, grou
        y = "Count",
        color = "Category") +
   theme_minimal_custom +
-  theme(panel.background = element_rect(fill = "#f2eada"),  # Set background color
-        axis.text = element_text(face = "bold"),              # Make axis text bold
+  theme(panel.background = element_rect(fill = "#f2eada"),  #set background color
+        axis.text = element_text(face = "bold"),              #bold axis text
         axis.title = element_text(face = "bold"),
-        panel.grid.major = element_line(color = "gray"),      # Set color of major grid lines
-        panel.grid.minor = element_line(color = "lightgray")) # Set color of minor grid lines
+        panel.grid.major = element_line(color = "gray"),      #set color of major grid lines
+        panel.grid.minor = element_line(color = "lightgray")) #set color of minor grid lines
 ```
 
 In (@fig-tab-one), the categories 1-5 present in legend were as follows: Under 16 (1), between 16 and 24 (2), between 25 and 44 (3), between 45 and 64 (4), and above 65(5). 
@@ -154,26 +153,25 @@ We constructed (@fig-tab-two) to show the cleaned data, and also constructed thr
 
 ```{r}
 #| label: fig-two
-#| fig-cap: NNumber of people returned from housing to shelter from 2018 to 2023
+#| fig-cap: Trends in Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023
 #| echo: false
 #| message: false
 
-####2nd graph data####
-# Step 1: Filter out unnecessary population groups
+#### generate the 2nd graph ####
+#filter for necessary population groups
 cleaned_data_figtwo <- cleaned_data_figtwo %>%
-  filter(population_group %in% c("All Population", "Chronic", "Refugees", "Families", "Youth", "Single Adult", "	
-Non-refugees"))
+  filter(population_group %in% c("Chronic", "Refugees", "Families", "Indigenous", "Non-refugees"))
 
-# Step 2: Reshape the data
+#reshape the data for graph generating
 reshaped_data <- cleaned_data_figtwo %>%
   pivot_longer(cols = ageunder16:age65over, names_to = "age_group", values_to = "count")
 
-# Define a custom Starry Night color palette
+#define a custom color palette for better look of the graph
 starry_night_palette <- c("#145b7d", "#70a19f", "#008792","#00ae9d", "#76becc", "#94d6da")
 
-# Plot the data with thinner bars
+#plot the data
 ggplot(reshaped_data, aes(x = age_group, y = count, fill = population_group)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.8) +  # Adjust the width here
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.8) +
   labs(x = "Age Group", y = "Population Count", fill = "Population Group") +
   scale_fill_manual(values = starry_night_palette) +
   theme_minimal()
@@ -181,49 +179,34 @@ ggplot(reshaped_data, aes(x = age_group, y = count, fill = population_group)) +
 
 ```{r}
 #| label: fig-thr
-#| fig-cap: Trend of number of people returned to shelter between 2018 and 2023
+#| fig-cap: Trends in Gender Composition of Homeless Population Across Different Population Groups within the Toronto Shelter System between 2018 and 2023
 #| echo: false
 #| message: false
 
-####3RD graph data####
-# Step 1: Reshape the data
+#### generate the 3rd graph ####
+#reshape the data for graphing
 cleaned_data_figthree_long <- tidyr::pivot_longer(cleaned_data_figthree, 
                                                   cols = c(gender_male, gender_female, gender_transgender_non_binary_or_two_spirit),
                                                   names_to = "gender",
                                                   values_to = "count")
 
-# Step 2: Plot the data
+#plot the data
 ggplot(cleaned_data_figthree_long, aes(x = year, y = count, fill = gender)) +
   geom_bar(stat = "identity", position = "stack", width = 0.7) +
-  scale_fill_brewer(palette = "Paired") +  # Choose a color palette
+  scale_fill_brewer(palette = "Paired") + 
   labs(x = "Date",
        y = "Count",
        fill = "Gender") +
-  scale_y_continuous(labels = scales::comma) +  # Format y-axis labels with commas
+  scale_y_continuous(labels = scales::comma) +  #format y-axis labels with commas
   theme_minimal() +
-  facet_wrap(~ population_group, ncol = 3, scales = "free_y") +  # Facet by population groups with 3 columns
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels
-        strip.text = element_text(size = 8),  # Adjust the size of facet labels
-        legend.position = "bottom",  # Position legend at the bottom
-        legend.box.spacing = unit(0.3, "lines"),  # Reduce spacing around legend
-        legend.spacing = unit(0.3, "lines"))  # Reduce spacing within legend
+  facet_wrap(~ population_group, ncol = 3, scales = "free_y") +  #facet by population groups with 3 columns
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),  #rotate x-axis labels
+        strip.text = element_text(size = 8),  #adjust the size of facet labels
+        legend.position = "bottom",  #position legend at the bottom
+        legend.box.spacing = unit(0.3, "lines"),  #set spacing around legend
+        legend.spacing = unit(0.3, "lines"))  #set spacing within legend
 ```
 
-```{r}
-#| label: fig-fou
-#| fig-cap: Trend of number of people moved to housing between 2018 and 2023
-#| echo: false
-#| message: false
-
-####3RD graph data####
-#compose a scatterplot for data
-cleaned_graph_data_4 |>
-  ggplot(aes(x = occupied_year, y = num_moved_to_housing, color = )) +
-  geom_jitter() +
-  geom_smooth(method = lm, se = FALSE) +
-  theme_minimal() +
-  labs(x = "Year", y = "Average number of people moved to housing", color = "Country")
-```
 According to  (@fig-two), we can see that the average amount of people returned to shelters from housing shows a decreasing trend from 2018 to 2023. In (@fig-thr), similar to (@fig-two), the average number of people returning to shelter also shows a decreasing trend from the year 2018 to 2023. However, the trend in (@fig-two) goes up in the first 3 years and went down, while the data in (@fig-thr) shows a more steadily decreasing trend. Combining the results we got from these two graphs, we can conclude that the overall number of people returned to shelter (including return from housing or other places) shows a decreasing trend from 2018 to 2023.
 
 Moreover, (@fig-fou) shows the trend of an average number of homeless moved out from shelters to permanent housing. Although the best-fit line was showing a decreasing trend, we can see that the actual trend was increasing from 2018 to 2019, and then significantly decreased between 2019 and 2021, and started to recover after that. However, although the average number of people moving to a house is increasing from 2021 to 2023, it is still much lower comparing the average value in 2018. 
@@ -234,37 +217,6 @@ Summarizing the information provided by the data, we can conclude that the avera
 
 In section 3, we aim to find the big picture of homeless population in Toronto. We are focusing on two columns mainly: the number of homeless who became inactive and actively homeless. A homeless becomes inactive if they haven't returned to the shelter for at least three months, and an actively homeless means they came to the shelter at least once per three months. These two data indicate the overall flow of actively homeless communities in Toronto, while "became inactive" records how many homeless left the community, and "actively homeless" records the overall population size. To visualize these changes, and show the group composition in the homeless group, we created (@fig-fiv) and (@fig-six), where different groups of people were represented with different colors.
 
-```{r}
-#| label: fig-fiv
-#| fig-cap: Overall trend of number of homeless people became inactive between 2018 and 2023
-#| echo: false
-#| message: false
-
-####3RD graph data####
-#compose a scatterplot for data
-cleaned_graph_data_5 |>
-  ggplot(aes(x = date_mmm_yy, y = became_inactive, color = population_group)) +
-  geom_jitter() +
-  geom_smooth(method = lm, se = FALSE) +
-  theme_minimal() +
-  labs(x = "Year", y = "Number of homeless people became inactive", color = "Population group")
-```
-
-```{r}
-#| label: fig-six
-#| fig-cap: Total trend of number of active homeless people between 2018 and 2023
-#| echo: false
-#| message: false
-
-####3RD graph data####
-#compose a scatterplot for data
-cleaned_graph_data_5 |>
-  ggplot(aes(x = date_mmm_yy, y = actively_homeless, color = population_group)) +
-  geom_jitter() +
-  geom_smooth(method = lm, se = FALSE) +
-  theme_minimal() +
-  labs(x = "Year", y = "Number of active homeless people", color = "Population group")
-```
 In (@fig-fiv), we can see that the overall trend for the number of homeless who became inactivate has decreased between 2018 and 2023. However, the trend of some population groups did not follow the overall decreasing trend. The trend of several homeless people with chronic became inactivate has increased between 2018 and 2023, which means more and more chronic homeless people left the homeless community, while the other populations, including families, indigenous, non-refugees, single adults, and youth have shown a decreasing trend or remains relatively unchanged.
 
 In (@fig-six), the overall trend for the number of actively homeless increased between 2018 and 2023. Chronic, single adult, and refugee population groups contribute the most to the overall increasing trend, while indigenous and youth population groups were kept at a stable level. However, the family population group that was actively homeless became less between 2018 to 2023, which suggests there are fewer homeless families in the homeless community.
