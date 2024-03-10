@@ -2,7 +2,7 @@
 #### Preamble ####
 # Purpose: Clean the data download from OpendataToronto to make the 
 #          datas into a uniform and cleaned style
-# Author: Yiyi Feng
+# Author: Yiyi Feng, Linda
 # Date: 3 March 2024
 # Contact: yiyi.feng@mail.utoronto.ca, lindayx.sun@mail.utoronto.ca
 # License: MIT
@@ -82,10 +82,51 @@ figone_data_clean <- figone_data_clean %>%
   slice(-n())
 figone_data_clean
 
-
 #### Save data ####
 write_csv(
   x = figone_data_clean,
   file = "data/cleaned_data_fig1.csv"
 )
+
+####summerize data for figure two####
+
+figtwo_data_clean <- 
+  cleaned_data |>
+  select(date_mmm_yy, population_group,ageunder16, age16_24, age25_44, age45_64, age65over)
+figtwo_data_clean
+
+#### Save data ####
+write_csv(
+  x = figtwo_data_clean,
+  file = "data/cleaned_data_fig2.csv"
+)
+
+####summerize data for figure three####
+
+figthree_data_clean <- 
+  cleaned_data |>
+  select(date_mmm_yy, population_group,gender_male, gender_female, gender_transgender_non_binary_or_two_spirit)
+figthree_data_clean
+
+# Step 1: Extract year from the date_mmm_yy column
+figthree_data_clean <- figthree_data_clean %>%
+  mutate(year = lubridate::year(date_mmm_yy))
+
+# Step 2: Group by year and population_group, and summarize the counts
+figthree_data_clean <- figthree_data_clean %>%
+  group_by(year, population_group) %>%
+  summarize(gender_male = sum(gender_male),
+            gender_female = sum(gender_female),
+            gender_transgender_non_binary_or_two_spirit = sum(gender_transgender_non_binary_or_two_spirit))
+
+# Remove rows with 2024 or NA in the year column
+figthree_data_clean <- figthree_data_clean %>%
+  filter(!is.na(year) & year != 2024)
+
+#### Save data ####
+write_csv(
+  x = figthree_data_clean,
+  file = "data/cleaned_data_fig3.csv"
+)
+
 

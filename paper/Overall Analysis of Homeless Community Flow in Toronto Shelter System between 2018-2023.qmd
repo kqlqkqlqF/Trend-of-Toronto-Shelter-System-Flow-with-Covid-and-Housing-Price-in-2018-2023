@@ -1,7 +1,7 @@
 ---
 title: "Overall Analysis of Homeless Community Flow in Toronto Shelter System between 2018-2023"
 author: 
-  - Yiyi Feng
+  - Yiyi Feng, Linda Sun
 date: today
 date-format: long
 format:
@@ -32,10 +32,8 @@ library(ggplot2)
 library(ggpubr)
 library(kableExtra)
 
-
 #### Read data ####
-#Please mute this setwd() function if there's no need to set the working session on your computer. On my side, I have to set this becayse its keep telling me my directory is wrong
-#setwd("C:/Users/kqlqk/Desktop/starter_folder-main/starter_folder-main/scripts")
+# Set the working directory
 
 the_raw_data <-
   read_csv(
@@ -52,6 +50,15 @@ cleaned_data_figone <-
     file = "data/cleaned_data_fig1.csv",
     show_col_types = FALSE)
 
+cleaned_data_figtwo <-
+  read_csv(
+    file = "data/cleaned_data_fig2.csv",
+    show_col_types = FALSE)
+
+cleaned_data_figthree <-
+  read_csv(
+    file = "data/cleaned_data_fig3.csv",
+    show_col_types = FALSE)
 ```
 # Introduction [^1]
 
@@ -85,32 +92,15 @@ Using this cleaned data set, I produced (@fig-tab-one) and (@fig-one) for visual
 #| fig-cap: The average number of people move into shelter per month between 2018 and 2023
 #| echo: false
 
-# Convert 'year' to a factor for proper ordering in the bar chart
+# Change column names
+colnames(data) <- c("Year", "Returned from Housing", "Returned to Shelter", 
+                    "Newly Identified", "Moved to Housing", "Became Inactive", 
+                    "Actively Homeless")
 
-cleaned_data_figone$year <- as.factor(cleaned_data_figone$year)
-
-# Plotting with ggplot2
-
-ggplot(cleaned_data_figone, aes(x = year)) +
-
-  geom_bar(aes(y = returned_from_housing), stat = "identity", fill = 'blue') +
-
-  geom_bar(aes(y = returned_to_shelter), stat = "identity", fill = 'red', position = 'stack') +
-
-  geom_bar(aes(y = newly_identified), stat = "identity", fill = 'green', position = 'stack') +
-
-  geom_bar(aes(y = moved_to_housing), stat = "identity", fill = 'orange', position = 'stack') +
-
-  geom_bar(aes(y = became_inactive), stat = "identity", fill = 'purple', position = 'stack') +
-
-  geom_bar(aes(y = actively_homeless), stat = "identity", fill = 'yellow', position = 'stack') +
-
-  labs(x = 'Year', y = 'Number of People', fill = 'Category', title = 'Homelessness Data by Year and Category') +
-
-  theme_minimal() +
-
-  theme(legend.position = "bottom")
-
+# Create a kable table
+kable(cleaned_data_figone, align = "c", caption = "Shelter System Flow from 2018 to 2023") %>%
+  kable_styling(full_width = FALSE) %>%
+  row_spec(0, bold = TRUE)  # Bold header row
 ```
 
 ```{r}
@@ -119,17 +109,35 @@ ggplot(cleaned_data_figone, aes(x = year)) +
 #| echo: false
 #| message: false
 
-#### 2ND graph data ####
-#convert data into matrix for graph generating
-matrix_graph_data <- data.matrix(cleaned_graph_data_2)
-#remove inappropriate col from matrix
-matrix_graph_data <- 
-  matrix_graph_data[, colnames(matrix_graph_data) != "occupied_month"]
-#rename the rows of matrix
-rownames(matrix_graph_data) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jlu", "Aug", "Sep", "Oct", "Nov", "Dec")
-#generate plot for matrix
-matplot(matrix_graph_data, type = "b",pch=1,col = 1:5, xlab = "Month", ylab = "Number pf people moved into shelter")
-legend("left", legend = 1:5, col=1:5, pch=1, horiz = TRUE)
+# Convert year to factor to maintain ordering on x-axis
+cleaned_data_figone$year <- factor(cleaned_data_figone$year)
+
+# Reshape data from wide to long format for ggplot
+cleaned_data_figone_long <- tidyr::pivot_longer(cleaned_data_figone, 
+                                                cols = -year, 
+                                                names_to = "Category", 
+                                                values_to = "Value")
+
+# Define the themes
+theme_minimal_custom <- theme_minimal() +
+  theme(axis.text = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10))
+
+# Plot with background color, bold axis labels, and custom grid color
+ggplot(cleaned_data_figone_long, aes(x = year, y = Value, color = Category, group = Category)) +
+  geom_smooth(method = "loess", se = FALSE, size = 1.5, alpha = 0.8) +
+  geom_point(size = 4, alpha = 0.8) +
+  scale_color_viridis_d() +
+  labs(x = "Year",
+       y = "Count",
+       color = "Category") +
+  theme_minimal_custom +
+  theme(panel.background = element_rect(fill = "#f2eada"),  # Set background color
+        axis.text = element_text(face = "bold"),              # Make axis text bold
+        axis.title = element_text(face = "bold"),
+        panel.grid.major = element_line(color = "gray"),      # Set color of major grid lines
+        panel.grid.minor = element_line(color = "lightgray")) # Set color of minor grid lines
 ```
 
 In (@fig-tab-one), the categories 1-5 present in legend were as follows: Under 16 (1), between 16 and 24 (2), between 25 and 44 (3), between 45 and 64 (4), and above 65(5). 
@@ -143,35 +151,32 @@ In section 2, we focus on investigating the number of people moving in/out of th
 
 We constructed (@fig-tab-two) to show the cleaned data, and also constructed three figures: (@fig-two), (@fig-thr), and (@fig-fou) for visualizing the number of people return from housing, return to shelters, and move to house each year respectively.
 
-```{r}
-#| label: fig-tab-two
-#| fig-cap: The average number of people moved in/out from shelters between 2018 to 2023
-#| echo: false
-#| message: false
-
-cleaned_graph_data_4 |>
-  kable(
-    col.names = c("Year", "Return from housing", "Return to shelter", "Move to housing"),
-    digits = 1
-  )
-```
-
-
 
 ```{r}
 #| label: fig-two
 #| fig-cap: NNumber of people returned from housing to shelter from 2018 to 2023
 #| echo: false
 #| message: false
-####3RD graph data####
-#compose a scatter plot for data
-cleaned_graph_data_4 |>
-  ggplot(aes(x = occupied_year, y = num_returned_from_housing
-             )) +
-  geom_jitter() +
-  geom_smooth(method = lm, se = FALSE) +
-  theme_minimal() +
-  labs(x = "Year", y = "Average people return to shelter from housing", color = "Country")
+
+####2nd graph data####
+# Step 1: Filter out unnecessary population groups
+cleaned_data_figtwo <- cleaned_data_figtwo %>%
+  filter(population_group %in% c("All Population", "Chronic", "Refugees", "Families", "Youth", "Single Adult", "	
+Non-refugees"))
+
+# Step 2: Reshape the data
+reshaped_data <- cleaned_data_figtwo %>%
+  pivot_longer(cols = ageunder16:age65over, names_to = "age_group", values_to = "count")
+
+# Define a custom Starry Night color palette
+starry_night_palette <- c("#145b7d", "#70a19f", "#008792","#00ae9d", "#76becc", "#94d6da")
+
+# Plot the data with thinner bars
+ggplot(reshaped_data, aes(x = age_group, y = count, fill = population_group)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.8) +  # Adjust the width here
+  labs(x = "Age Group", y = "Population Count", fill = "Population Group") +
+  scale_fill_manual(values = starry_night_palette) +
+  theme_minimal()
 ```
 
 ```{r}
@@ -181,13 +186,27 @@ cleaned_graph_data_4 |>
 #| message: false
 
 ####3RD graph data####
-#compose a scatterplot for data
-cleaned_graph_data_4 |>
-  ggplot(aes(x = occupied_year, y = num_returned_to_shelter, color = )) +
-  geom_jitter() +
-  geom_smooth(method = lm, se = FALSE) +
+# Step 1: Reshape the data
+cleaned_data_figthree_long <- tidyr::pivot_longer(cleaned_data_figthree, 
+                                                  cols = c(gender_male, gender_female, gender_transgender_non_binary_or_two_spirit),
+                                                  names_to = "gender",
+                                                  values_to = "count")
+
+# Step 2: Plot the data
+ggplot(cleaned_data_figthree_long, aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity", position = "stack", width = 0.7) +
+  scale_fill_brewer(palette = "Paired") +  # Choose a color palette
+  labs(x = "Date",
+       y = "Count",
+       fill = "Gender") +
+  scale_y_continuous(labels = scales::comma) +  # Format y-axis labels with commas
   theme_minimal() +
-  labs(x = "Year", y = "Average number of people returned to shelter", color = "Country")
+  facet_wrap(~ population_group, ncol = 3, scales = "free_y") +  # Facet by population groups with 3 columns
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels
+        strip.text = element_text(size = 8),  # Adjust the size of facet labels
+        legend.position = "bottom",  # Position legend at the bottom
+        legend.box.spacing = unit(0.3, "lines"),  # Reduce spacing around legend
+        legend.spacing = unit(0.3, "lines"))  # Reduce spacing within legend
 ```
 
 ```{r}
