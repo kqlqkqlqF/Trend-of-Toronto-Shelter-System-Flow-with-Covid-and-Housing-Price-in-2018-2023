@@ -9,9 +9,10 @@ format:
     toc: true
     number-sections: true
 number-sections: true
-abstract: "Our analysis of Toronto's shelter system from 2018 to 2023 reveals shifts in the homeless population composition, including variations among single adults, families, genders, and age groups. We examine population dynamics, highlighting fluctuations in the number of actively homeless individuals and patterns of return to homelessness. Crucially, our predictive modeling forecasts an alarming increase in homelessness in the future. This study underscores the imperative for proactive strategies to address the growing challenges faced by Toronto's homeless community, and unreaveled the composition of homeless community."
+abstract: "Against the backdrop of economic challenges and the ramifications of the pandemic, this analysis offers an intricate exploration of Toronto's shelter system from 2018 to 2023. Unveiling nuanced shifts in the homeless population's composition across single adults, families, genders, and age groups, the study scrutinizes population dynamics. It elucidates fluctuations in the actively homeless count and discerns patterns of return to homelessness. Notably, predictive modeling forecasts a concerning surge in homelessness, underscoring the urgency for proactive strategies. These findings illuminating the pressing need for expanded shelter infrastructure to meet the escalating challenges ahead."
 bibliography: references11.bib
 ---
+
 
 ```{r}
 #| include: false
@@ -33,11 +34,6 @@ library(ggpubr)
 library(kableExtra)
 
 #### Read data ####
-the_raw_data <-
-  read_csv(
-    file = "../data/raw_data.csv",
-    show_col_types = FALSE)
-
 cleaned_data <-
   read_csv(
     file = "../data/cleaned_data.csv",
@@ -60,28 +56,34 @@ cleaned_data_figthree <-
 ```
 # Introduction [^1]
 
-In the city of Toronto, a scene occurs every day: some homeless people gather in specific locations, or wait for services and food in front of shelters. This noteworthy phenomenon is particularly evident in downtown Toronto, where empirical data shows that more than half of the city’s homeless population tends to be concentrated in the downtown and East York areas. This is because 53% of the city's shelters are located in downtown Toronto and East York. These shelters provide homeless people with food, welfare, and an overnight temporary shelter.
+Undoubtedly, homeless individuals in Toronto have been facing serious challenges in accessing nighttime accommodation in recent years. As early as 2020, the general manager of the city's shelter, support, and housing administration openly stated that an average of 72 people were being turned away from shelters due to overcrowding every day, a number that only continued to rise. （1）By the winter of 2022, this figure had surged to a staggering 168 people.（2） For residents living in Toronto, this reality is starkly apparent - despite shelter occupancy rates exceeding 98%, a significant number of individuals still resort to sleeping on the streets or in parks, a reality witnessed firsthand by residents and students alike.
 
-But even in this case, a considerable number of homeless people still have to sleep on the streets at night. As a resident and student in downtown Toronto, the harsh reality of homelessness becomes apparent while walking at night. People without shelter often seek shelter, especially on cold winter nights, in secluded corners near shop windows, inside bus shelters or on heated ventilation ducts to protect themselves from harsh weather conditions. No fewer than 9,000 people [@fradvictor] were forced to endure the inclement weather every night, despite overnight occupancy soaring to 98% [@streetneed] .
+Despite significant efforts to address homelessness, there remains a notable gap in our understanding of the changing trend in the composition of the homeless community in Toronto. While the overall number of homeless individuals is documented, the specific demographic shifts within this population, such as variations in age groups and gender distribution, have not been comprehensively explored. Understanding these trends is essential for developing targeted interventions and resource allocation strategies to effectively address the diverse needs of the homeless population in Toronto.
 
-This reality got me thinking and led me to a series of questions about the homeless community. I would like to know the predominant age groups of the homeless population, and whether the arrival of winter will result in a significant increase in shelter occupancy compared to the summer. In addition, considering the increase in housing prices and the global pandemic in recent years, I wonder whether the number of occupancy in shelters will be affected by this and show an increasing trend.
+To do this, we seek to conduct an in-depth analysis and study of Toronto's homeless population, aiming to understand the recent trends in this community, including changes in overall numbers and demographic composition. Leveraging data obtained from the Toronto Open Database, we aim to delve into the complexity and evolving trends of Toronto's homeless community. We analyze the status and demographic composition of Toronto's homeless population from 2018 to 2023, focusing on changes in status, such as the number of homeless individuals transitioning between housing and shelters, and long-term use of the shelter system, as well as demographic characteristics including gender, age, and identity.
 
-To find answers to this series of questions, we launched a comprehensive survey using data drawn from the Open Data Toronto [@opendatatoronto] database from 2018 to 2023. This investigative work involves systematic data processing and visualization technology, hoping to explore the trend of homeless people in Toronto from different angles during the period from 2018 to 2023.
+To address this gap, we present a series of structured analyses of our findings. We begin by examining the annual counts of transitions of homeless individuals between housing, shelters, and other status within the Toronto shelter system from 2018 to 2023. Following this, we delve into the composition of homeless population groups and the trend of age distribution within the homeless population. Similarly, the trend of gender composition across different population groups in the homeless community was also analyzed. Finally, we present the predictions from our linear model for future trends in the number of homeless individuals in Toronto.
 
-To systematically address the questions posed, the data were divided into three distinct parts to facilitate thorough analysis and visualization. The initial section sought to demonstrate seasonal patterns of shelter occupancy and examine age demographics to determine the ages of the major groups affected by homelessness and examine the impact of different seasons on occupancy rates. Subsequently, the second section focuses on summarizing the dynamics of the number of people entering and exiting shelters from 2018 to 2023, and exploring the impact of rising housing prices and the pandemic on the homeless situation. Finally, the third part focuses on a detailed analysis of the composition of the homeless population, analyzing the changes in the proportion of different population groups in the homeless population from 2018 to 2023. This structured exploration aims to uncover the multifaceted problem of homelessness in Toronto, providing a holistic perspective on its dynamics and influencing factors.
+Our analysis reveals several key findings. Firstly, the linear model we built suggests a steady increase in the number of homeless individuals in Toronto, indicating the need for expansion of the shelter system to accommodate more people. Additionally, our examination of the data through various figures provides insights into the nuanced dynamics of homelessness in the city. These figures include trends in the annual counts of homeless individuals transitioning within the Toronto shelter system, trends in the composition of homeless population groups and age distribution, and trends in gender composition across different population groups within the shelter system.
 
-[^1]: Please check https://github.com/kqlqkqlqF/Toronto-shelter-system-flow.git for more information.
+Understanding the trends and dynamics of homelessness in Toronto is of paramount importance, given its implications for public policy and social welfare. By shedding light on the challenges faced by the homeless population and providing evidence-based insights, our study aims to inform and guide policymakers and stakeholders in their efforts to address homelessness in the city.
+
+[^1]: Please check https://github.com/kqlqkqlqF/Toronto-Shelter-System-Flow-between-2018-and-2023-with-Further-Predictions.git for more information.
 
 
 # Data [^2]
 
-The data for this analysis was collected from the Open Data Toronto library [@opendatatoronto], which shares. The dataset, which was named 'About Toronto Shelter System Flow', was used and analyzed in this paper. This data set includes a large amount of information about the flow of homeless people in Toronto shelters from January 18, 2018, to December 23, 2023, including the gender, age, number, and composition of shelter users (such as family/single moving in). In addition, this data set also provides information on the number of people leaving the shelter and new people entering the shelter. This data set is released by the Toronto Shelter, Support & Housing Administration and adopts a monthly update system, indicating that the data set is highly reliable. Moreover, this data set received full marks on the Opendatatoronto website. The website evaluates data quality from five dimensions: Freshness, metadata, accessibility, completeness, and usability, and this data set received full marks on all five dimensions. Therefore, I think the content of this data set is highly authentic and credible, and use it as the data source for this paper. 
+The data for this analysis was collected from the shared Toronto Open Database [@opendatatoronto]. This study utilizes and analyzes the dataset titled "About Toronto Shelter System Flow". The dataset contains a wealth of information on the movement of homeless individuals in Toronto shelters from January 2018 to January 2024, including gender, age, quantity, and group affiliation (such as refugees). Additionally, the dataset provides information on the number of people leaving and entering shelters. It is released by the Toronto Shelter, Support, and Housing Administration, updated monthly, and has a high level of credibility. Moreover, the dataset has received full marks for freshness, metadata, accessibility, completeness, and usability on the Opendatatoronto website. Therefore, we consider the content of this dataset to be highly credible and utilize it as the primary data source for this paper. However, due to the limited data available for January 2024, we did not include this portion in the data analysis, as the smaller dataset size for 2024 may lead to unexpected analysis results.
+
+Upon entering shelters, individuals utilizing shelter services are required to provide their name, age, gender, and group affiliation, which are recorded in the database. It is important to note that this dataset only records homeless individuals using overnight shelter services and does not include those utilizing other welfare policies, such as receiving free food or vaccinations.In the data, homeless individuals are divided into five age groups: under 16, 16 to 24, 25 to 44, 45 to 64, and over 65. Gender is categorized as male, female, and non-binary. Group affiliation includes chronic, refugees, families, youth, single adult, non-refugee, and indigenous. It is noteworthy that the indigenous group was only included in the statistics starting from January 2022, as the authors of the dataset stated their intention to collect more detailed data, hence adding the subdivision. Here, Chronic refers to homeless individuals who have continuously used shelter services for more than 180 days. Additionally, by dividing the specific group's number of a given month by the total number of people using shelter services overnight, the dataset also records the percentage of each group in the overall population. Regarding the documentation of homeless transitions, the dataset provides six data points: new identified, return from housing, return to shelter, moved to housing, became inactive, and actively homeless. Newly Identified refers to people who entered the shelter system for the first time; Returned from Permanent Housing refers to people who previously used the shelter system, then moved to permanent housing, and have now returned; Returned to Shelter refers to people who were previously using the shelter system, then did not use the system for 3 months or longer, and have now returned; Moved to Permanent Housing refers to people who were using the shelter system and have moved to permanent housing; Became Inactive refers to people who last accessed shelter services three months ago; Actively Homeless refers to people who have used shelter services at least one time in the past three months and have not moved to permanent housing. 
+
+Due to the clarity of the data itself, our data cleaning process primarily focused on converting the raw data dates into the yyyy-mm-dd format, without making extensive changes to the overall dataset. Following the completion of general data cleaning, we performed separate data cleaning for each chart to ensure code were organized and minimize the amount of code in the final QMD file. For the first chart, intended to reveal Trends in the Annual Counts of Homeless Individuals Transitioning within the Toronto Shelter System between 2018 and 2023, we retained only a portion of the data for the six transition status categories from monthly data and aggregated data within the same year for ease of subsequent chart generation. For the second chart, aimed at revealing Trends in Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023, we removed all data except for age and group affiliation. Similarly, for the third chart, which aimed to reveal Trends in Gender Composition of Homeless Population Across Different Population Groups within the Toronto Shelter System between 2018 and 2023, we retained only gender and group affiliation data. The final linear model utilized the overall dataset after data cleaning, and no additional cleaning was performed. It is important to note that we excluded data from January 2024 in all chart data to avoid errors.
 
 [^2]: Rstudio [@citeR] was used for producing the code and this paper. A series of R packages were used: [@gg2]. [@knitr], [@kable], [@janet], and [@tidy].
 
-## First Section
+# Result
 
-Section 1 aimed to find the seasonal patterns of shelter occupancy rate, and the major age group occupied the shelter. To get this information, I extracted the dataset from the Opendatatoronto website and processed the data. First, I only preserved columns with date information and the number of people who moved into the shelter with their age groups recorded. The level of age group was categorized into 5 levels: under 16, between 16 and 24, between 25 and 44, between 45 and 64, and above 65. Second, to find the seasonal patterns, I summarized the number of people who moved into shelters each month and took the average to obtain a new data set with the month and respective average amount of people who moved into shelters in that month. 
+Section 1 aimed to find the seasonal patterns of shelter occupancy rate, and the major age group occupied the shelter. To get this information, I eResultxtracted the dataset from the Opendatatoronto website and processed the data. First, I only preserved columns with date information and the number of people who moved into the shelter with their age groups recorded. The level of age group was categorized into 5 levels: under 16, between 16 and 24, between 25 and 44, between 45 and 64, and above 65. Second, to find the seasonal patterns, I summarized the number of people who moved into shelters each month and took the average to obtain a new data set with the month and respective average amount of people who moved into shelters in that month. 
 
 Using this cleaned data set, I produced (@fig-tab-one) and (@fig-one) for visualizing the trend of people moving in shelters with the change of month.
 
@@ -90,15 +92,19 @@ Using this cleaned data set, I produced (@fig-tab-one) and (@fig-one) for visual
 #| fig-cap: Number of Homeless Individuals Transitioning between Housing, Shelters, and Other Status Within the Toronto Shelter System between 2018 and 2023
 #| echo: false
 
-####generate the first table ####
-# generate new column names
-colnames(cleaned_data_figone) <- c("Year", "Returned from Housing", "Returned to Shelter", 
-                    "Newly Identified", "Moved to Housing", "Became Inactive", 
-                    "Actively Homeless")
-# Create a table using kable
-kable(cleaned_data_figone, align = "c") %>%
-  kable_styling(full_width = FALSE) %>%
-  row_spec(0, bold = TRUE)  # Bold header row
+# Create a table plot using kableExtra with adjusted width
+# Generate new column names with line breaks
+colnames(cleaned_data_figone) <- c("Year", 
+                                   "From Housing", 
+                                   "To Shelter", 
+                                   "Newly Identified", 
+                                   "To Housing", 
+                                   "Inactive", 
+                                   "Actively")
+
+# Create a table plot using kableExtra
+kable(cleaned_data_figone, align = "c", col.names = colnames(cleaned_data_figone), linesep = "\n") %>%
+  kable_styling(full_width = FALSE)
 ```
 
 ```{r}
@@ -142,9 +148,6 @@ ggplot(cleaned_data_figone_long, aes(x = year, y = Value, color = Category, grou
 In (@fig-tab-one), the categories 1-5 present in legend were as follows: Under 16 (1), between 16 and 24 (2), between 25 and 44 (3), between 45 and 64 (4), and above 65(5). 
 
 According to (@fig-tab-one) and (@fig-one), on the age group aspect, we can see that people age was between 25 and 44 occupied the most places in the shelter, while the age group between 45 and 64 is the second, and age group above 65 occupied the least. The age group under 16 and between 16 and 24 occupied the shelter with a very close amount, while the age group under 16 occupied a little bit more. On the season aspect, we can see that there's no large fluctuation in shelter occupation rates throughout all months. There was a small increase in December, but the overall level remained stable.
-
-
-## Second Section
 
 In section 2, we focus on investigating the number of people moving in/out of the shelters. So, we did second round of data cleaning and visualizing. Similar to what we did in section 1, we removed all other columns and preserved columns containing information about the date, number of people returning from housing, return to shelters, and move to housing. We summarized the number of people who moved in/out of the shelter for each year and took the average to show the trend.  “People return from housing” means that the person has stayed in the shelter before and was recorded as moved to permanent housing, now returned to the shelter from housing. "Return to shelters" was the class of people who stayed in the shelter before and hadn't been using the shelter for at least 3 months, and returned to shelters. Finally, "move to house" indicates people used the shelter and registered as moving to permanent housing.
 
@@ -212,8 +215,6 @@ According to  (@fig-two), we can see that the average amount of people returned 
 Moreover, (@fig-fou) shows the trend of an average number of homeless moved out from shelters to permanent housing. Although the best-fit line was showing a decreasing trend, we can see that the actual trend was increasing from 2018 to 2019, and then significantly decreased between 2019 and 2021, and started to recover after that. However, although the average number of people moving to a house is increasing from 2021 to 2023, it is still much lower comparing the average value in 2018. 
 
 Summarizing the information provided by the data, we can conclude that the average number of people who returned to shelter or moved out to housing has shown a decreasing trend between 2018 and 2023.
-
-## Third Section
 
 In section 3, we aim to find the big picture of homeless population in Toronto. We are focusing on two columns mainly: the number of homeless who became inactive and actively homeless. A homeless becomes inactive if they haven't returned to the shelter for at least three months, and an actively homeless means they came to the shelter at least once per three months. These two data indicate the overall flow of actively homeless communities in Toronto, while "became inactive" records how many homeless left the community, and "actively homeless" records the overall population size. To visualize these changes, and show the group composition in the homeless group, we created (@fig-fiv) and (@fig-six), where different groups of people were represented with different colors.
 
