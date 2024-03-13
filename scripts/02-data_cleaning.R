@@ -6,8 +6,7 @@
 # Contact: yiyi.feng@mail.utoronto.ca, lindayx.sun@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: "data/raw_data.csv" file, which is the raw data. 
-#Other information: Need to install packages "knitr", "janitor", "tidyverse", 
-#                   and "lubridate".
+#Other information: Need to install packages "knitr", "janitor", "tidyverse", and "lubridate".
 ---
 
 #### Workspace setup ####

@@ -6,6 +6,7 @@
 # Author: Yingxvan Sun, Yiyi Feng
 # Pre-requisites: "data/cleaned_data.csv" file, "data/simulated_data.csv". 
 # License: MIT
+#Other information: Need to install packages "testthat", "lubridate", "tidyverse", "dplyr", and "stringr".
 ---
 
 #### Workspace setup ####

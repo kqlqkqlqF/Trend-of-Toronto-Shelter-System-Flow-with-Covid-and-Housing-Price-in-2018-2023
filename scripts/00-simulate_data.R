@@ -7,6 +7,7 @@
 # Author: Yingxvan Sun, Yiyi Feng
 # Pre-requisites: no pre-requisites 
 # License: MIT
+#Other information: Need to install packages"tidyverse", and "lubridate".
 ---
 
 #### Workspace setup ####
