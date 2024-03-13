@@ -37,6 +37,11 @@ cleaned_data <-
   mutate(date_mmm_yy = as.Date(date_mmm_yy, format = "%Y-%m-%d"))
 cleaned_data#take a look at the cleaned data for checking
 
+cleaned_data <- na.omit(cleaned_data)
+
+cleaned_data <- cleaned_data %>%
+  filter(date_mmm_yy != "2024-01-01")
+
 #set local time back to original setting, please mute this sentence if not needed on your computer
 Sys.setlocale("LC_TIME", loc) 
 

@@ -71,15 +71,21 @@ Understanding the trends and dynamics of homelessness in Toronto is of paramount
 [^1]: Please check https://github.com/kqlqkqlqF/Toronto-Shelter-System-Flow-between-2018-and-2023-with-Further-Predictions.git for more information.
 
 
-# Data [^2]
+# Data
+
+## Data Source
 
 The data for this analysis was collected from the shared Toronto Open Database [@opendatatoronto]. This study utilizes and analyzes the dataset titled "About Toronto Shelter System Flow". The dataset contains a wealth of information on the movement of homeless individuals in Toronto shelters from January 2018 to January 2024, including gender, age, quantity, and group affiliation (such as refugees). Additionally, the dataset provides information on the number of people leaving and entering shelters. It is released by the Toronto Shelter, Support, and Housing Administration, updated monthly, and has a high level of credibility. Moreover, the dataset has received full marks for freshness, metadata, accessibility, completeness, and usability on the Opendatatoronto website. Therefore, we consider the content of this dataset to be highly credible and utilize it as the primary data source for this paper. However, due to the limited data available for January 2024, we did not include this portion in the data analysis, as the smaller dataset size for 2024 may lead to unexpected analysis results.
 
+## Features
+
 Upon entering shelters, individuals utilizing shelter services are required to provide their name, age, gender, and group affiliation, which are recorded in the database. It is important to note that this dataset only records homeless individuals using overnight shelter services and does not include those utilizing other welfare policies, such as receiving free food or vaccinations.In the data, homeless individuals are divided into five age groups: under 16, 16 to 24, 25 to 44, 45 to 64, and over 65. Gender is categorized as male, female, and non-binary. Group affiliation includes chronic, refugees, families, youth, single adult, non-refugee, and indigenous. It is noteworthy that the indigenous group was only included in the statistics starting from January 2022, as the authors of the dataset stated their intention to collect more detailed data, hence adding the subdivision. Here, Chronic refers to homeless individuals who have continuously used shelter services for more than 180 days. Additionally, by dividing the specific group's number of a given month by the total number of people using shelter services overnight, the dataset also records the percentage of each group in the overall population. Regarding the documentation of homeless transitions, the dataset provides six data points: new identified, return from housing, return to shelter, moved to housing, became inactive, and actively homeless. Newly Identified refers to people who entered the shelter system for the first time; Returned from Permanent Housing refers to people who previously used the shelter system, then moved to permanent housing, and have now returned; Returned to Shelter refers to people who were previously using the shelter system, then did not use the system for 3 months or longer, and have now returned; Moved to Permanent Housing refers to people who were using the shelter system and have moved to permanent housing; Became Inactive refers to people who last accessed shelter services three months ago; Actively Homeless refers to people who have used shelter services at least one time in the past three months and have not moved to permanent housing. 
 
-Due to the clarity of the data itself, our data cleaning process primarily focused on converting the raw data dates into the yyyy-mm-dd format, without making extensive changes to the overall dataset. Following the completion of general data cleaning, we performed separate data cleaning for each chart to ensure code were organized and minimize the amount of code in the final QMD file. For the first chart, intended to reveal Trends in the Annual Counts of Homeless Individuals Transitioning within the Toronto Shelter System between 2018 and 2023, we retained only a portion of the data for the six transition status categories from monthly data and aggregated data within the same year for ease of subsequent chart generation. For the second chart, aimed at revealing Trends in Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023, we removed all data except for age and group affiliation. Similarly, for the third chart, which aimed to reveal Trends in Gender Composition of Homeless Population Across Different Population Groups within the Toronto Shelter System between 2018 and 2023, we retained only gender and group affiliation data. The final linear model utilized the overall dataset after data cleaning, and no additional cleaning was performed. It is important to note that we excluded data from January 2024 in all chart data to avoid errors.
+## Methodology
 
-[^2]: Rstudio [@citeR] was used for producing the code and this paper. A series of R packages were used: [@gg2]. [@knitr], [@kable], [@janet], and [@tidy].
+The cleaned data were analyzed and performed using R [@citeR] with `tidyverse` [@citeTidyverse], `here` [@citeHere], `rstanarm` [@citeRstanarm], `modelsummary` [@citeModleSummary], `ggplot2` [@citeGgplot2], `knitr` [@citeKnitr], `marginaleffects` [@citeMarginalEffects], `plotly` [@citePlotly], `tibble` [@citeTibble], `margins` [@citeMargins], `testthat` [@citetestthat] and `kableExtra` [@citeKableExtra].
+
+Due to the clarity of the data itself, our data cleaning process primarily focused on converting the raw data dates into the yyyy-mm-dd format, without making extensive changes to the overall dataset. Following the completion of general data cleaning, we performed separate data cleaning for each chart to ensure code were organized and minimize the amount of code in the final QMD file. For the first chart, intended to reveal Trends in the Annual Counts of Homeless Individuals Transitioning within the Toronto Shelter System between 2018 and 2023, we retained only a portion of the data for the six transition status categories from monthly data and aggregated data within the same year for ease of subsequent chart generation. For the second chart, aimed at revealing Trends in Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023, we removed all data except for age and group affiliation. Similarly, for the third chart, which aimed to reveal Trends in Gender Composition of Homeless Population Across Different Population Groups within the Toronto Shelter System between 2018 and 2023, we retained only gender and group affiliation data. The final linear model utilized the overall dataset after data cleaning, and no additional cleaning was performed. It is important to note that we excluded data from January 2024 in all chart data to avoid errors.
 
 # Result
 
@@ -152,16 +158,17 @@ The data also captures changes in individuals returning to shelters and those be
 Lastly, individuals from the actively homeless category highlight the ongoing demand for shelter services and support. Although there was a decline in the number of actively homeless individuals in 2020 and 2021, it surged to new highs in 2022 and 2023. This suggests a significant increase in the number of individuals utilizing overnight shelter services in the past two years, indirectly indicating a potential increase in Toronto's homeless population from 2022 to 2023.
 In conclusion, these data paint a complex picture of homelessness within the Toronto shelter system, with a noticeable trend of increasing actively homeless individuals. This underscores the importance of continued efforts to provide comprehensive support and housing solutions to meet the diverse needs of this vulnerable population.
 
+## Composition of Homeless Population Groups and Correcponding Age Distribution
 ```{r}
 #| label: fig-two
-#| fig-cap: Trends in Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023
+#| fig-cap: Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023
 #| echo: false
 #| message: false
 
 #### generate the 2nd graph ####
 #filter for necessary population groups
 cleaned_data_figtwo <- cleaned_data_figtwo %>%
-  filter(population_group %in% c("Chronic", "Refugees", "Families", "Indigenous", "Non-refugees"))
+  filter(population_group %in% c("All Population", "Chronic", "Refugees", "Families", "Indigenous", "Non-refugees"))
 
 #reshape the data for graph generating
 reshaped_data <- cleaned_data_figtwo %>%
@@ -175,8 +182,21 @@ ggplot(reshaped_data, aes(x = age_group, y = count, fill = population_group)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.8) +
   labs(x = "Age Group", y = "Population Count", fill = "Population Group") +
   scale_fill_manual(values = starry_night_palette) +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 ```
+
+Before beginning the analysis of [@fig-two], there are several points that need to be explained. Firstly, within the population groups depicted in this graph, apart from refugees and non-refugees, the other options are not mutually exclusive. This means that a person can simultaneously belong to the chronic, families, and refugee groups, but cannot be a refugee and a non-refugee at the same time. This explains why the total number of homeless individuals in these population groups exceeds the number represented by the "all population" category. Secondly, as mentioned earlier, the number of individuals in the indigenous group was only recorded starting from 2020, so the actual number of indigenous individuals should be higher than what is shown in the graph.
+
+We can see that individuals aged between 25 and 44 constitute the largest portion of the homeless population, while those aged between 45 and 64 represent the second largest group, and those aged 65 and above represent the smallest group. From the perspective of population groups, non-refugees constitute the largest group, followed by refugees and then chronic individuals, with indigenous individuals being the smallest group. From this distribution trend, we can infer the following information:
+
+Firstly, except for the age group under 16, chronic individuals constitute a significant portion of the homeless population in other age groups, indicating that a considerable number of homeless individuals rely on overnight shelter services for an extended period and find it difficult to secure permanent housing, thus perpetuating their homelessness.
+
+Secondly, although refugees constitute a smaller proportion of the homeless population compared to non-refugees overall, in the age group under 16, the number of refugees far exceeds the proportion of non-refugees. This suggests that there are a significant number of parenting teenagers or even younger children among the refugee population who are homeless. Additionally, we observe that the proportion of families in the age group under 16 also significantly increases, slightly surpassing the proportion of refugees and almost equaling the "all population" category. This evidence confirms our previous conclusions and supports the notion that these young refugee homeless individuals are likely to be wandering alongside their refugee family members.
+
+Thirdly, unlike refugees, homeless individuals categorized as non-refugees are mainly distributed in the age group of 25 and above. Particularly in the age group of 65 and above, the number of non-refugees is almost equivalent to the "all population" category.
+
 
 ```{r}
 #| label: fig-thr
@@ -208,17 +228,7 @@ ggplot(cleaned_data_figthree_long, aes(x = year, y = count, fill = gender)) +
         legend.spacing = unit(0.3, "lines"))  #set spacing within legend
 ```
 
-According to  (@fig-two), we can see that the average amount of people returned to shelters from housing shows a decreasing trend from 2018 to 2023. In (@fig-thr), similar to (@fig-two), the average number of people returning to shelter also shows a decreasing trend from the year 2018 to 2023. However, the trend in (@fig-two) goes up in the first 3 years and went down, while the data in (@fig-thr) shows a more steadily decreasing trend. Combining the results we got from these two graphs, we can conclude that the overall number of people returned to shelter (including return from housing or other places) shows a decreasing trend from 2018 to 2023.
 
-Moreover, (@fig-fou) shows the trend of an average number of homeless moved out from shelters to permanent housing. Although the best-fit line was showing a decreasing trend, we can see that the actual trend was increasing from 2018 to 2019, and then significantly decreased between 2019 and 2021, and started to recover after that. However, although the average number of people moving to a house is increasing from 2021 to 2023, it is still much lower comparing the average value in 2018. 
-
-Summarizing the information provided by the data, we can conclude that the average number of people who returned to shelter or moved out to housing has shown a decreasing trend between 2018 and 2023.
-
-In section 3, we aim to find the big picture of homeless population in Toronto. We are focusing on two columns mainly: the number of homeless who became inactive and actively homeless. A homeless becomes inactive if they haven't returned to the shelter for at least three months, and an actively homeless means they came to the shelter at least once per three months. These two data indicate the overall flow of actively homeless communities in Toronto, while "became inactive" records how many homeless left the community, and "actively homeless" records the overall population size. To visualize these changes, and show the group composition in the homeless group, we created (@fig-fiv) and (@fig-six), where different groups of people were represented with different colors.
-
-In (@fig-fiv), we can see that the overall trend for the number of homeless who became inactivate has decreased between 2018 and 2023. However, the trend of some population groups did not follow the overall decreasing trend. The trend of several homeless people with chronic became inactivate has increased between 2018 and 2023, which means more and more chronic homeless people left the homeless community, while the other populations, including families, indigenous, non-refugees, single adults, and youth have shown a decreasing trend or remains relatively unchanged.
-
-In (@fig-six), the overall trend for the number of actively homeless increased between 2018 and 2023. Chronic, single adult, and refugee population groups contribute the most to the overall increasing trend, while indigenous and youth population groups were kept at a stable level. However, the family population group that was actively homeless became less between 2018 to 2023, which suggests there are fewer homeless families in the homeless community.
 
 # Discussion
 
