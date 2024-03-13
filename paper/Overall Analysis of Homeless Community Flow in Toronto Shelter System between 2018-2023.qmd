@@ -1,7 +1,7 @@
 ---
 title: "Navigating Toronto's Homelessness Landscape: A Comprehensive Data Analysis of Trends, Compositional Shifts, and Projections for the City's Homeless Population Dynamics (2018-2023)"
 author: 
-  - Yiyi Feng, Linda Sun
+  - Yiyi Feng, Yingxvan Sun
 date: today
 date-format: long
 format:
@@ -83,10 +83,7 @@ Due to the clarity of the data itself, our data cleaning process primarily focus
 
 # Result
 
-Section 1 aimed to find the seasonal patterns of shelter occupancy rate, and the major age group occupied the shelter. To get this information, I eResultxtracted the dataset from the Opendatatoronto website and processed the data. First, I only preserved columns with date information and the number of people who moved into the shelter with their age groups recorded. The level of age group was categorized into 5 levels: under 16, between 16 and 24, between 25 and 44, between 45 and 64, and above 65. Second, to find the seasonal patterns, I summarized the number of people who moved into shelters each month and took the average to obtain a new data set with the month and respective average amount of people who moved into shelters in that month. 
-
-Using this cleaned data set, I produced (@fig-tab-one) and (@fig-one) for visualizing the trend of people moving in shelters with the change of month.
-
+## Trends in Homelessness Transitioning within the Toronto Shelter System
 ```{r}
 #| label: fig-tab-one
 #| fig-cap: Number of Homeless Individuals Transitioning between Housing, Shelters, and Other Status Within the Toronto Shelter System between 2018 and 2023
@@ -95,16 +92,15 @@ Using this cleaned data set, I produced (@fig-tab-one) and (@fig-one) for visual
 # Create a table plot using kableExtra with adjusted width
 # Generate new column names with line breaks
 colnames(cleaned_data_figone) <- c("Year", 
-                                   "From Housing", 
-                                   "To Shelter", 
+                                   "Returned from Housing", 
+                                   "Returned to Shelter", 
                                    "Newly Identified", 
-                                   "To Housing", 
-                                   "Inactive", 
-                                   "Actively")
+                                   "Moved to Housing", 
+                                   "Became Inactive", 
+                                   "Actively Homeless")
 
 # Create a table plot using kableExtra
-kable(cleaned_data_figone, align = "c", col.names = colnames(cleaned_data_figone), linesep = "\n") %>%
-  kable_styling(full_width = FALSE)
+kable(cleaned_data_figone, align = "c", col.names = colnames(cleaned_data_figone), linesep = "\n")
 ```
 
 ```{r}
@@ -112,6 +108,7 @@ kable(cleaned_data_figone, align = "c", col.names = colnames(cleaned_data_figone
 #| fig-cap: Trends in the Annual Counts of Homeless Individuals Transitioning within the Toronto Shelter System between 2018 and 2023 
 #| echo: false
 #| message: false
+#| warning: false
 
 #### Generate the first figure ####
 # Convert year to factor to maintain ordering on x-axis
@@ -123,16 +120,19 @@ cleaned_data_figone_long <- tidyr::pivot_longer(cleaned_data_figone,
                                                 names_to = "Category", 
                                                 values_to = "Value")
 
+# Remove rows where "year" appears in the "Category" column
+cleaned_data_figone_long <-  cleaned_data_figone_long[cleaned_data_figone_long$Category != "Year", ]
+
 # Define the themes
 theme_minimal_custom <- theme_minimal() +
   theme(axis.text = element_text(size = 12),
         legend.title = element_text(size = 12),
         legend.text = element_text(size = 10))
 
-# Plot with background color, bold axis labels, and custom grid color
-ggplot(cleaned_data_figone_long, aes(x = year, y = Value, color = Category, group = Category)) +
-  geom_smooth(method = "loess", se = FALSE, size = 1.5, alpha = 0.8) +
-  geom_point(size = 4, alpha = 0.8) +
+# Plot without year data on x-axis
+ggplot(cleaned_data_figone_long, aes(y = Value, color = Category, group = Category)) +
+  geom_smooth(aes(x = year), method = "loess", se = FALSE, size = 1, alpha = 0.8) +
+  geom_point(aes(x = year), size = 3, alpha = 0.8) +
   scale_color_viridis_d() +
   labs(x = "Year",
        y = "Count",
@@ -145,14 +145,12 @@ ggplot(cleaned_data_figone_long, aes(x = year, y = Value, color = Category, grou
         panel.grid.minor = element_line(color = "lightgray")) #set color of minor grid lines
 ```
 
-In (@fig-tab-one), the categories 1-5 present in legend were as follows: Under 16 (1), between 16 and 24 (2), between 25 and 44 (3), between 45 and 64 (4), and above 65(5). 
-
-According to (@fig-tab-one) and (@fig-one), on the age group aspect, we can see that people age was between 25 and 44 occupied the most places in the shelter, while the age group between 45 and 64 is the second, and age group above 65 occupied the least. The age group under 16 and between 16 and 24 occupied the shelter with a very close amount, while the age group under 16 occupied a little bit more. On the season aspect, we can see that there's no large fluctuation in shelter occupation rates throughout all months. There was a small increase in December, but the overall level remained stable.
-
-In section 2, we focus on investigating the number of people moving in/out of the shelters. So, we did second round of data cleaning and visualizing. Similar to what we did in section 1, we removed all other columns and preserved columns containing information about the date, number of people returning from housing, return to shelters, and move to housing. We summarized the number of people who moved in/out of the shelter for each year and took the average to show the trend.  “People return from housing” means that the person has stayed in the shelter before and was recorded as moved to permanent housing, now returned to the shelter from housing. "Return to shelters" was the class of people who stayed in the shelter before and hadn't been using the shelter for at least 3 months, and returned to shelters. Finally, "move to house" indicates people used the shelter and registered as moving to permanent housing.
-
-We constructed (@fig-tab-two) to show the cleaned data, and also constructed three figures: (@fig-two), (@fig-thr), and (@fig-fou) for visualizing the number of people return from housing, return to shelters, and move to house each year respectively.
-
+The data provided in [@fig-tab-one] and [@fig-one] offers a comprehensive insight into the dynamic changes in the homeless population within the Toronto shelter system from 2018 to 2023. It emphasizes the various transitions experienced by individuals reliant on shelter services and provides insights into the overall fluctuations in homelessness numbers.
+A notable trend observed is the fluctuation in the annual count of newly identified individuals entering the shelter system. Peaking in 2018 and gradually declining over the following years, the trend suggests a persistent need for shelter services, with a gradual increase observed from 2020 onwards.
+Another significant aspect of the data is the return of individuals from permanent housing to the shelter system. This phenomenon is concerning as it indicates potential housing instability for a portion of the population. Fortunately, the numbers have remained relatively stable from 2018 to 2023, and they are lower than those transitioning to permanent housing each year. However, the declining trend in individuals moving to stable housing from 2018 to 2021 is worrisome. Although there is a slight increase in 2022 and 2023, it remains below the 2018 levels, suggesting a decrease in individuals transitioning to permanent housing.
+The data also captures changes in individuals returning to shelters and those becoming inactive within the shelter system. While there is a gradual decline in the number of individuals becoming inactive homeless over the five years, the decrease is minimal, similar to the trend in individuals returning to shelters. Without further explanation, it's challenging to draw reliable conclusions on the decrease in the number of inactive homeless individuals or the reasons behind individuals returning to shelters since their experience after leaving the shelter system is unknown. They could be moving to other cities, finding housing, or dying. Therefore, if there's no further detail for the reason they left the shelter system, it is hard to understand the implications of the data fully, and no conclusion can be drawn.
+Lastly, individuals from the actively homeless category highlight the ongoing demand for shelter services and support. Although there was a decline in the number of actively homeless individuals in 2020 and 2021, it surged to new highs in 2022 and 2023. This suggests a significant increase in the number of individuals utilizing overnight shelter services in the past two years, indirectly indicating a potential increase in Toronto's homeless population from 2022 to 2023.
+In conclusion, these data paint a complex picture of homelessness within the Toronto shelter system, with a noticeable trend of increasing actively homeless individuals. This underscores the importance of continued efforts to provide comprehensive support and housing solutions to meet the diverse needs of this vulnerable population.
 
 ```{r}
 #| label: fig-two
