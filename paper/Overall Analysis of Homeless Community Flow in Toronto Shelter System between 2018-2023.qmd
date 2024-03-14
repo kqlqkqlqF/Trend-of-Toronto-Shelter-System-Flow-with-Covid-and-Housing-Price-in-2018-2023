@@ -197,6 +197,7 @@ Secondly, although refugees constitute a smaller proportion of the homeless popu
 
 Thirdly, unlike refugees, homeless individuals categorized as non-refugees are mainly distributed in the age group of 25 and above. Particularly in the age group of 65 and above, the number of non-refugees is almost equivalent to the "all population" category.
 
+## Gender Composition Across Homeless Population Groups
 
 ```{r}
 #| label: fig-thr
@@ -205,14 +206,25 @@ Thirdly, unlike refugees, homeless individuals categorized as non-refugees are m
 #| message: false
 
 #### generate the 3rd graph ####
-#reshape the data for graphing
-cleaned_data_figthree_long <- tidyr::pivot_longer(cleaned_data_figthree, 
-                                                  cols = c(gender_male, gender_female, gender_transgender_non_binary_or_two_spirit),
+
+# Rename the columns first
+cleaned_data_figthree_renamed <- cleaned_data_figthree %>%
+  rename(
+    "Year" = year,
+    "Population Group" = population_group,
+    "Male" = gender_male,
+    "Female" = gender_female,
+    "Transgender/Non Binary/Two spirit" = gender_transgender_non_binary_or_two_spirit
+  )
+
+# Reshape the data for graphing
+cleaned_data_figthree_long <- tidyr::pivot_longer(cleaned_data_figthree_renamed, 
+                                                  cols = c(Male, Female, `Transgender/Non Binary/Two spirit`),
                                                   names_to = "gender",
                                                   values_to = "count")
 
-#plot the data
-ggplot(cleaned_data_figthree_long, aes(x = year, y = count, fill = gender)) +
+# Plot the data
+ggplot(cleaned_data_figthree_long, aes(x = Year, y = count, fill = gender)) +
   geom_bar(stat = "identity", position = "stack", width = 0.7) +
   scale_fill_brewer(palette = "Paired") + 
   labs(x = "Date",
@@ -220,7 +232,7 @@ ggplot(cleaned_data_figthree_long, aes(x = year, y = count, fill = gender)) +
        fill = "Gender") +
   scale_y_continuous(labels = scales::comma) +  #format y-axis labels with commas
   theme_minimal() +
-  facet_wrap(~ population_group, ncol = 3, scales = "free_y") +  #facet by population groups with 3 columns
+  facet_wrap(~ `Population Group`, ncol = 3, scales = "free_y") +  #facet by population groups with 3 columns
   theme(axis.text.x = element_text(angle = 45, hjust = 1),  #rotate x-axis labels
         strip.text = element_text(size = 8),  #adjust the size of facet labels
         legend.position = "bottom",  #position legend at the bottom
@@ -228,25 +240,20 @@ ggplot(cleaned_data_figthree_long, aes(x = year, y = count, fill = gender)) +
         legend.spacing = unit(0.3, "lines"))  #set spacing within legend
 ```
 
+The data presented in [@fig-thr] provides insights into the gender dynamics within Toronto's homeless population across different population groups and years spanning from 2018 to 2023. A consistent trend observed throughout the years is the higher representation of males compared to females and individuals identifying as transgender, non-binary, or two-spirit. This imbalance suggests a prevalent gender disparity among those experiencing homelessness, with males comprising a larger proportion of the homeless population.
 
+However, within specific population groups, variations in gender composition emerge. For instance, in the "Chronic" population group, which likely encompasses individuals experiencing long-term homelessness, both males and females are prominently represented, indicating a diverse demographic within this subgroup. In contrast, the "Families" population group, which likely consists of homeless families with children, demonstrates a higher count of females compared to males and individuals identifying as transgender, non-binary, or two-spirit. This gender distribution within homeless families may be influenced by factors such as caregiving responsibilities and access to support services, highlighting the unique dynamics within this subgroup. Similarly, the "Refugees" population group exhibits a relatively balanced distribution between males and females, with a smaller count of individuals identifying as transgender, non-binary, or two-spirit. This suggests a diverse composition within refugee populations experiencing homelessness, possibly influenced by factors such as migration patterns and resettlement challenges.
+
+Furthermore, the data reveal temporal fluctuations in gender composition, particularly evident in the chronic population group, which demonstrates a consistent increase in count from 2018 to 2023. This upward trend suggests a growing number of individuals experiencing long-term homelessness, underscoring the persistent challenges faced by Toronto's homeless community.
 
 # Discussion
 
 
-In the first section, we came up with the conclusion that there's no significant difference in the occupied rate of shelter in different seasons, and the main population of the homeless group consisted of people aged between 25 and 64, while people aged between 25 and 44 occupied the most. This conclusion seems reasonable since as we mentioned before, the occupancy rate of shelters in Toronto is already over 98% [@homelessinTor], but there are still more than 9000 people who need to sleep outside. So, in a situation in which the shelters are full and cannot accept all of the homeless, the shelter will be fully occupied every day. As a result, the season and weather factors won't affect the occupancy rate of shelters largely.  
+## Weaknesses
 
-In the second section, we found that the average number of people returning to shelters between 2018 and 2023 has decreased. Although the number of people returning to shelter decreased may suggest a good phenomenon, this also suggests a possibility that some of them died because of the pandemic so they cannot return. This idea came up with the result in the third section, in which we find that more people with chronic became inactive during these five years while all of the other population groups held a stable trend or decreasing trend. Considering people with chronic are more vulnerable to the COVID, we suspect that these results were caused by the death of chronically homeless people. However, this idea still needs more evidence to support it. 
-
-Also in the second section, we found that the number of homeless moved to housing has decreased between 2018 and 2023. This matched with the result shown in section three that the total amount of homeless became inactive decreased in the same period. Considering the result in section three also suggested that the total amount of homeless is rising, we can infer that things are getting worse because there are more new homeless people emerging, while fewer people are returning to housing. Most population groups have a similar trend with the overall homeless population, except for the chronic population mentioned before.
-
-To sum up, these data demonstrated three facts: First, the homeless population was mainly composed of people aged between 25 and 44, and most of them were registered as non-refugees, single adults; Second: The weather and season did not affect the occupy rate of shelters; Third, the total population of homeless has increased between 2018 and 2023. This might be due to increasing house prices and the pandemic, but still a need for evidence to prove they are relevant.
+## Further Study
 
 
-## Weaknesses and next steps
-
-The weakness of this investigation mainly comes from the limitation of data. Firstly, shelter sites that do not use SMIS and that are funded by other levels of government are not included, meaning that it is not a comprehensive data set that includes all shelter data in Toronto. Second, this data reflects only people who have used an overnight service and does not include people using other homeless services. This potentially suggests that the homeless community is larger than the number shown in this dataset. 
-
-To investigate this question deeper, we can also look at the house pricing and COVID cases data between the same period, so that they can be matched up and compared with the data of shelter occupation. We shall also search for other datasets that contain the dataset for shelters not included in this dataset, and get a more comprehensive look at the homeless population in Toronto. Finally, we can compare the amount of shelters available and the size of the homeless population, to see how many homeless are still not able to stay in shelters. We believe these approaches could lead to a deeper understanding of the Toronto shelter system and homeless population.
 
 \newpage
 # bibliography
