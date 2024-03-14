@@ -1,23 +1,17 @@
 ---
 #### Preamble ####
-# Purpose: Clean the data download from OpendataToronto to make the 
-#          datas into a uniform and cleaned style
+# Purpose: build the linear model for the relationship between the month passes and the total number of homeless
 # Author: Yiyi Feng, Yingxvan Sun
-# Date: 10 March 2024
+# Date: 14 March 2024
 # Contact: yiyi.feng@mail.utoronto.ca, lindayx.sun@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: "data/cleaned_data.csv" file and "data/cleaned_data_fig3.csv" file. 
-#Other information: Need to install packages "knitr", "janitor", "tidyverse", 
-#                   and "lubridate"
+# Pre-requisites: "data/cleaned_data_fig2.csv" file. 
+#Other information: Need to install packages "tidyverse" and "here".
 ---
 
-####Workspace setup ####
+#### Workspace setup ####
 library(tidyverse)
-library(janitor)
-library(knitr)
-library(ggplot2)
-library(ggpubr)
-library(kableExtra)
+library(here)
 
 #### Read data ####
 cleaned_data_figtwo <-
@@ -25,58 +19,32 @@ cleaned_data_figtwo <-
     file = "data/cleaned_data_fig2.csv",
     show_col_types = FALSE)
 
-####modeling data####
+# Only take the rows representing all population
+cleaned_data_model <- cleaned_data_figtwo[cleaned_data_figtwo$population_group == "All Population", ]
 
-# Calculate the sum of age groups for each row
-cleaned_data_figtwo$age_sum <- rowSums(cleaned_data_figtwo[, c("ageunder16", "age16_24", "age25_44", "age45_64", "age65over")])
+# Convert date_mmm_yy to Date format
+cleaned_data_model$date_mmm_yy <- as.Date(cleaned_data_model$date_mmm_yy)
 
+# Find the earliest year and month
+earliest_year <- min(format(cleaned_data_model$date_mmm_yy, "%Y"))
+earliest_month <- min(format(cleaned_data_model$date_mmm_yy, "%m"))
 
-# Remove unnecessary columns
-cleaned_data_figtwo <- cleaned_data_figtwo %>%
-  select(-c(date_mmm_yy, population_group))
+# Calculate the number of months that have passed since the earliest date
+cleaned_data_model$month_number <- (as.numeric(format(cleaned_data_model$date_mmm_yy, "%Y")) - as.numeric(earliest_year)) * 12 +
+  (as.numeric(format(cleaned_data_model$date_mmm_yy, "%m")) - as.numeric(earliest_month)) + 1
 
-# Create an empty list to store linear models
-models <- list()
+#sum the number of homeless for different age groups
+cleaned_data_model$total_population <- rowSums(cleaned_data_model[, c("ageunder16", "age16_24", "age25_44", "age45_64", "age65over")])
 
-# Iterate over each column and fit a linear model
-for (col_name in colnames(cleaned_data_figtwo)) {
-  # Fit linear model
-  lm_model <- lm(cleaned_data_figtwo[[col_name]] ~ 1)
-  
-  # Store the model in the list
-  models[[col_name]] <- lm_model
-}
+# Fit a linear model
+lm_model <- lm(total_population ~ month_number, data = cleaned_data_model)
 
+# Print the summary of the model
+summary(lm_model)
 
-
-
-
-
-generate_predictions <- function(model_info, date) {
-  predictions <- sapply(model_info, function(model) {
-    print(str(model))  # Print the structure of the model object
-    pred <- predict(model$model, newdata = data.frame(date_mmm_yy = date))
-    return(pred)
-  })
-  return(predictions)
-}
-
-# Generate predictions for each age group for each date
-prediction_data <- list()
-for (age_group in names(models)) {
-  print(age_group)  # Print the age group for debugging
-  print(models[[age_group]])  # Print the model object for debugging
-  prediction_data[[age_group]] <- generate_predictions(models[[age_group]], prediction_dates)
-}
-
-# Melt the data frame for plotting
-library(reshape2)
-prediction_data_melted <- melt(prediction_data, id.vars = "date_mmm_yy", variable.name = "age_group", value.name = "predicted_count")
-
-# Plot the predicted counts over time for each age group
-library(ggplot2)
-ggplot(prediction_data_melted, aes(x = date_mmm_yy, y = predicted_count, color = age_group)) +
-  geom_line() +
-  labs(x = "Date", y = "Predicted Count", color = "Age Group") +
-  theme_minimal()
-
+#### Save model ####
+# Save the model as an .rds file to the 'models' folder
+saveRDS(
+  lm_model,
+  file = here("model", "linear_model_month.rds")
+)

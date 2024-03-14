@@ -246,6 +246,45 @@ However, within specific population groups, variations in gender composition eme
 
 Furthermore, the data reveal temporal fluctuations in gender composition, particularly evident in the chronic population group, which demonstrates a consistent increase in count from 2018 to 2023. This upward trend suggests a growing number of individuals experiencing long-term homelessness, underscoring the persistent challenges faced by Toronto's homeless community.
 
+## Model and future prediction
+
+### Model Setup
+
+The objective of this analysis is to establish a linear model to predict the change in total number of homeless community as time proceed. We aim to understand how the homeless population varies over time and whether there's a discernible trend in its change. We will use a linear regression model to analyze the relationship between date and the number of the homeless population. The model setup is as follows:
+
+\[
+\text{All Population}_i \sim \mathcal{N}(\mu_i, \sigma)
+\]
+\[
+\mu_i = \beta_0 + \beta_1 \times \text{DATE}_i
+\]
+\[
+\beta_0 \sim \mathcal{N}(\mu = \text{Initial Estimate}, \sigma = \text{Standard Deviation})
+\]
+\[
+\beta_1 \sim \mathcal{N}(\mu = \text{Initial Estimate}, \sigma = \text{Standard Deviation})
+\]
+
+The variables we are using were listed below:
+
+Number of Month: the number of months record the number of months passed starting 2018 January.
+
+Total population of homeless: The total number of homeless individuals used shelter overnight service in a particular month.
+
+The key coefficients and their representation were listed below:
+
+\textbf{Intercept ($\beta_0$)}: The intercept represents the estimated number of the homeless population at the beginning of the observation period, which is 2018 January.
+
+\textbf{Slope ($\beta_1$)}: The slope quantifies the average change in the number of the homeless population per month.
+
+We choose a linear regression model because we want to examine the linear relationship between month(time change) and the number of the homeless population. We assume that the change in the homeless population over time can be adequately captured by a linear trend.
+
+The equation of the linear model is as follows:
+\[
+\text{All Population}_i = \beta_0 + \beta_1 \times \text{DATE}_i
+\]
+
+
 # Discussion
 
 
