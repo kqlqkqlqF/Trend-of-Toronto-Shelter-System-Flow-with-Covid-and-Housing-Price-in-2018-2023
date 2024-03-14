@@ -32,6 +32,7 @@ library(knitr)
 library(ggplot2)
 library(ggpubr)
 library(kableExtra)
+library(here)
 
 #### Read data ####
 cleaned_data <-
@@ -53,6 +54,14 @@ cleaned_data_figthree <-
   read_csv(
     file = "../data/cleaned_data_fig3.csv",
     show_col_types = FALSE)
+
+cleaned_data_model <-
+  read_csv(
+    file = "../data/cleaned_data_model.csv",
+    show_col_types = FALSE)
+
+# Retrieve the linear model from the saved .rds file
+lm_model <- readRDS(file = here("model", "linear_model_month.rds"))
 ```
 # Introduction [^1]
 
@@ -252,18 +261,12 @@ Furthermore, the data reveal temporal fluctuations in gender composition, partic
 
 The objective of this analysis is to establish a linear model to predict the change in total number of homeless community as time proceed. We aim to understand how the homeless population varies over time and whether there's a discernible trend in its change. We will use a linear regression model to analyze the relationship between date and the number of the homeless population. The model setup is as follows:
 
-\[
-\text{All Population}_i \sim \mathcal{N}(\mu_i, \sigma)
-\]
-\[
-\mu_i = \beta_0 + \beta_1 \times \text{DATE}_i
-\]
-\[
-\beta_0 \sim \mathcal{N}(\mu = \text{Initial Estimate}, \sigma = \text{Standard Deviation})
-\]
-\[
-\beta_1 \sim \mathcal{N}(\mu = \text{Initial Estimate}, \sigma = \text{Standard Deviation})
-\]
+\begin{align}
+y_i &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 + \beta_1 \times \mbox{AGE}_i \\
+\beta_0 &\sim \mbox{Normal}(90, 10) \\
+\beta_1 &\sim \mbox{Normal}(-0.1, 0.05)
+\end{align}
 
 The variables we are using were listed below:
 
@@ -271,18 +274,93 @@ Number of Month: the number of months record the number of months passed startin
 
 Total population of homeless: The total number of homeless individuals used shelter overnight service in a particular month.
 
+### Model Result
+
+```{r}
+#| echo: false
+
+# Extract coefficients from the model
+coefficients <- summary(lm_model)$coefficients
+coefficients
+```
+
 The key coefficients and their representation were listed below:
 
-\textbf{Intercept ($\beta_0$)}: The intercept represents the estimated number of the homeless population at the beginning of the observation period, which is 2018 January.
+**Intercept** ($\beta_0$)  : The intercept represents the estimated number of the homeless population at the beginning of the observation period, which is 2018 January.
 
-\textbf{Slope ($\beta_1$)}: The slope quantifies the average change in the number of the homeless population per month.
+**Slope** ($\beta_1$)  : The slope quantifies the average change in the number of the homeless population per month.
 
 We choose a linear regression model because we want to examine the linear relationship between month(time change) and the number of the homeless population. We assume that the change in the homeless population over time can be adequately captured by a linear trend.
 
-The equation of the linear model is as follows:
-\[
-\text{All Population}_i = \beta_0 + \beta_1 \times \text{DATE}_i
-\]
+### Model Equation
+
+\begin{align}
+y_i &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 + \beta_1 \times \mbox{AGE}_i \\
+\beta_0 &= 8758.35 \\
+\beta_1 &= 14.605
+\end{align}
+
+### Residuals
+
+```{r}
+#| echo: false
+
+# Extract residuals from the model
+residuals <- resid(lm_model)
+summary(residuals)
+```
+
+**1. Minimum Residual**: The minimum residual is -1826.5, indicating that there is at least one observation for which the model's predicted total population was lower than the actual population by approximately 1826.5 individuals. This suggests the presence of potential outliers or factors not accounted for by the model.
+
+**2. First Quartile Residual**: The first quartile (Q1) of the residuals is -655.6, implying that 25% of the observations have total populations that are less than 655.6 individuals below the model's prediction.
+
+**3. Median Residual**: The median residual is 226.4, indicating that half of the observations have residuals below 226.4, suggesting a slight positive bias in the model's predictions. This means that, on average, the model tends to slightly underestimate the total population.
+
+**4. Third Quartile Residual**: The third quartile (Q3) is 712.4, signifying that 75% of the observations have total populations within 712.4 individuals of the model's predictions or better. This suggests that the model provides reasonably accurate predictions for the majority of observations.
+
+**5. Maximum Residual**: The maximum residual is 1185.1, suggesting that there is at least one observation for which the model's predicted total population was higher than the actual population by approximately 1185.1 individuals. Similar to the minimum residual, this could indicate the presence of outliers or unaccounted factors.
+
+**Interpretation**: The distribution of residuals provides insights into the model's performance and the presence of potential outliers or discrepancies between the model's predictions and the actual observations. Further investigation into the reasons behind significant deviations can help refine the model and improve the accuracy of its predictions. Additionally, assessing the model's assumptions, such as linearity, homoscedasticity, and normality of residuals, is essential to ensure the validity of the statistical inferences drawn from the model.
+
+### Graph Model
+```{r}
+#| label: fig-fou
+#| fig-cap: The Linear Relationship between Number of Month Passed and the Number of individuals use Shelter Overnight Service
+#| echo: false
+#| message: false
+
+# Create a scatter plot with a regression line to visualize the relationship
+ggplot(cleaned_data_model, aes(x = month_number, y = total_population)) +
+  geom_point(alpha = 0.7, size = 3, color = "darkblue") +  # Adjust transparency, size, and color of points
+  geom_smooth(method = "lm", color = "darkorange", size = 1.5, linetype = "dashed") +  # Change the size and type of the regression line
+  labs(
+    x = "Number of Months Passed Since 2018 January",
+    y = "Total Homeless Population",
+  ) +
+  theme_minimal() +  # Use a minimal theme
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10), # Rotate x axis text and adjust horizontal justification
+    axis.text.y = element_text(size = 10),
+    legend.position = "none", # Hide the legend if not necessary
+    plot.margin = margin(1, 1, 1, 1, "cm"), # Adjust the margin around the plot
+    panel.grid.major = element_line(color = "lightgray", linetype = "dotted"), # Add dotted grid lines
+    panel.grid.minor = element_blank(), # Remove minor grid lines
+    axis.line = element_line(color = "black"), # Change axis line color
+    axis.title = element_text(size = 12), # Adjust axis title size
+    plot.title = element_text(size = 14, face = "bold") # Adjust plot title size and style
+  ) +
+  coord_cartesian(ylim = c(5000, 12000)) # Set the y-axis limits
+
+```
+
+The linear regression model estimates the relationship between the number of months passed since January 2018 and the total number of individuals utilizing the overnight shelter system in Toronto. The model is expressed as ($y_i \sim \text{Normal}(\mu_i, \sigma)$), where ($y_i$) represents the predicted total homeless population in month ($i$), ($\mu_i$) is the mean of the normal distribution for the ($i$)th observation, and ($\sigma$) is the standard deviation. The mean ($\mu_i$) is determined by the intercept ($\beta_0$) and the slope ($\beta_1$) multiplied by the number of months passed since January 2018.
+
+The estimation results indicate that the intercept ($\beta_0$) is 8758.35, representing the estimated total homeless population in January 2018. The slope ($\beta_1$) is 14.605, indicating that for each additional month since January 2018, the total homeless population is estimated to increase by approximately 14.605 individuals. The significance of both coefficients is evidenced by their small standard errors and highly significant p-values ($p < 0.001$), indicating a strong statistical assurance in the estimates. However, the adjusted $R^2$ value of 0.08576 suggests that only approximately 8.6% of the variability in the total homeless population can be explained by the number of months passed since January 2018. Despite the statistically significant relationship between the independent and dependent variables, the model's overall explanatory power is relatively modest. Further analysis and consideration of additional factors may be necessary to improve the model's predictive accuracy and better understand the dynamics of homelessness in Toronto over time.
+
+
+
+
 
 
 # Discussion

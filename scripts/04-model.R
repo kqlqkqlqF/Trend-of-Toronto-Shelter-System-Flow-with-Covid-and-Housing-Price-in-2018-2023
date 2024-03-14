@@ -36,6 +36,12 @@ cleaned_data_model$month_number <- (as.numeric(format(cleaned_data_model$date_mm
 #sum the number of homeless for different age groups
 cleaned_data_model$total_population <- rowSums(cleaned_data_model[, c("ageunder16", "age16_24", "age25_44", "age45_64", "age65over")])
 
+#### Save data ####
+write_csv(
+  x = cleaned_data_model,
+  file = "data/cleaned_data_model.csv"
+)
+
 # Fit a linear model
 lm_model <- lm(total_population ~ month_number, data = cleaned_data_model)
 
