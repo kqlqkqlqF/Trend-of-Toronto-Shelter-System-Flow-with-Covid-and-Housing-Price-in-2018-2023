@@ -363,7 +363,7 @@ ggplot(cleaned_data_model, aes(x = month_number, y = total_population)) +
   geom_smooth(method = "lm", color = "darkorange", size = 1.5, linetype = "dashed") +  # Change the size and type of the regression line
   labs(
     x = "Number of Months Passed Since 2018 January",
-    y = "Total Homeless Population",
+    y = "Total Population Per Month",
   ) +
   theme_minimal() +  # Use a minimal theme
   theme(
