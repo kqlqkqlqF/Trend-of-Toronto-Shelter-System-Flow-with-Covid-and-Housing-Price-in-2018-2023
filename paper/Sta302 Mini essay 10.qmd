@@ -1,0 +1,134 @@
+---
+title: "Mini essay 10"
+author: 
+  - Yiyi Feng
+date: today
+date-format: long
+format:
+  pdf:
+    toc: true
+    number-sections: true
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+####Workspace setup####
+library(MASS)
+library(knitr)
+library(tidyverse)
+library(kableExtra)
+```
+
+# Model
+
+In our study, we created a make-believe situation to understand how people might vote, particularly focusing on predicting the number of votes for Pat Buchanan. The data we made up included things like income, education level, and ethnicity to see how they might affect voting. Using a multiple regression model, we tried to figure out if changes in income, education, or ethnic background could change how people vote. It's important to remember that our model is just a simplified version using made-up data. In real life, there are many other things that could affect how people vote. But our study gives us a starting point to think about how people's backgrounds might influence their voting choices.
+
+```{r}
+#| label: tbl-one
+#| tbl-cap: Partial Summary of Hypothetical Data - Votes for Pat Buchanan and Demographic Variables
+#| echo: false
+#| message: false
+#| warning: false
+#### Hypothetical data generation ####
+
+# Generating hypothetical data
+set.seed(1)  # for reproducibility
+
+# Number of observations
+n <- 100
+
+# Response variable: Number of votes for Pat Buchanan
+votes_buchanan <- round(rnorm(n, mean = 3000, sd = 500))
+
+# Demographic variables
+income <- round(rnorm(n, mean = 50000, sd = 10000))
+education_level <- sample(1:5, n, replace = TRUE)  # 1 = High School, 5 = PhD
+ethnicity <- sample(c("White", "Black", "Hispanic", "Asian"), n, replace = TRUE)
+
+# Creating a data frame
+data <- data.frame(votes_buchanan, income, education_level, ethnicity)
+
+# Select a subset of demographic variables to include in the table
+subset_data <- data[, c("votes_buchanan", "income")]
+
+# Create a data frame with the selected data
+selected_data <- data.frame(
+  "Variable" = c(rep("Votes for Pat Buchanan", 10), rep("Income", 10)),
+  "Value" = c(head(votes_buchanan, 10), head(income, 10))
+)
+
+# Print the table with smaller font size
+kable(selected_data, align = "c")
+
+```
+
+In [@tbl-one], we generated hypothetical data to simulate a scenario where we have information about the number of votes for Pat Buchanan in an election, along with demographic variables such as income, education level, and ethnicity for each observation. Using the rnorm() function in R, we created a random sample of 100 observations for each variable, with mean values and standard deviations chosen to reflect plausible ranges for each variable in a real-world scenario. This allowed us to create a dataset that mimics the structure of real data, enabling us to conduct statistical analyses and explore relationships between variables in a simulated setting.
+
+```{r}
+#| label: tbl-two
+#| tbl-cap: Summary of Multiple Regression Model-Coefficients, Standard Errors, t-values, and p-values for predictors of Pat Buchanan votes
+#| echo: false
+#| message: false
+#| warning: false
+
+#### Simple model buildup####
+# Fitting multiple regression model
+model <- lm(votes_buchanan ~ income + education_level + ethnicity, data = data)
+
+# Create a table from the model summary
+model_summary <- summary(model)
+model_table <- round(as.data.frame(model_summary$coefficients), digits = 4)
+
+# Print the table
+kable(model_table, align = "c")
+```
+
+In [@tbl-two], we present a summary of the multiple regression model that we built to analyze the relationship between the number of votes for Pat Buchanan (the response variable) and demographic variables such as income, education level, and ethnicity. The table provides coefficients for each predictor variable along with their standard errors, t-values, and p-values. These coefficients represent the estimated effect of each predictor variable on the number of votes for Pat Buchanan, holding other variables constant. Additionally, the table includes information about the intercept term. This summary allows us to assess the significance and direction of the relationships between the response variable and predictor variables in our regression model.
+
+```{r}
+#| label: tbl-thr
+#| tbl-cap: Coefficients, Standard Errors, t-values, and p-values for Predictors of Pat Buchanan Votes in the Multiple Regression Model
+#| echo: false
+#| message: false
+#| warning: false
+
+#### Examine the model ####
+
+# Examine the structure of the data dataset
+str(data)
+
+# Fit a multiple regression model
+newmodel <- lm(votes_buchanan ~ income + education_level + ethnicity, data = data)
+
+# Create a table from the model summary
+model_newsummary <- summary(newmodel)
+model_newtable <- round(as.data.frame(model_newsummary$coefficients), digits = 4)
+
+# Print the table
+kable(model_newtable, align = "c")
+```
+
+
+In [@tbl-thr], the table presents the coefficients, standard errors, t-values, and p-values for the predictors of Pat Buchanan's votes obtained from the multiple regression model. The intercept estimate suggests an average of approximately 3262 votes for Buchanan. However, none of the predictors, including income, education level, and ethnicity, show statistically significant effects on the number of votes for Buchanan, as indicated by the p-values exceeding conventional significance levels (p > 0.05). While education level demonstrates a marginally significant negative association (p = 0.063), the overall model suggests that these variables may not be strong predictors of voting behavior for Pat Buchanan.
+
+# Logistic Regression
+
+Logistic regression is like having a tool for predicting yes or no questions. But here, we're not asking if something is a yes or no; we're trying to predict the number of votes for Pat Buchanan. So, logistic regression isn't the right fit for our problem.
+
+# Poisson Regression
+
+Think of Poisson regression as your go-to when you're counting stuff, like how many times your favorite song plays on the radio in an hour. It's perfect for events that happen independently in a fixed interval. But here, we're dealing with votes, and Poisson regression assumes that the mean and variance of votes are the same. If there's a lot of variation in the number of votes, Poisson might not capture it all.
+
+# Negative Binomial
+
+Enter negative binomial regression, the hero of count data when things get a bit wild. It's like Poisson's cool cousin who can handle situations where the variance is way bigger than the mean. If there's a lot more variability in the number of votes than expected, negative binomial regression swoops in to save the day.
+
+# Summery
+
+In the end, it's like choosing between a basic tool (Poisson regression) and a more flexible one (negative binomial regression) that can handle unexpected twists and turns in the data. And since we're dealing with voting numbers, where surprises aren't uncommon, negative binomial regression seems like the way to go. But hey, let's take a closer look at the data first to be sure!
+
+
+
+
