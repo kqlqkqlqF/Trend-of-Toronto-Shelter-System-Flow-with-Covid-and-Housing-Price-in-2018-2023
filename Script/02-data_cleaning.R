@@ -17,29 +17,58 @@ library(tidyverse)
 
 #### Basic cleaning ####
 #import raw data
-raw_data <-
+raw_data_homeless <-
   read_csv(
-    file = "data/raw_data.csv",
+    file = "data/raw_data/raw_data_homeless.csv",
     show_col_types = FALSE
   )
 
+raw_data_covid_2020 <-
+  read_csv(
+    file = "data/raw_data/raw_data_covid_2020.csv",
+    show_col_types = FALSE
+  )
+
+raw_data_covid_2021 <-
+  read_csv(
+    file = "data/raw_data/raw_data_covid_2021.csv",
+    show_col_types = FALSE
+  )
+
+raw_data_covid_2022 <-
+  read_csv(
+    file = "data/raw_data/raw_data_covid_2022.csv",
+    show_col_types = FALSE
+  )
+
+raw_data_covid_2023 <-
+  read_csv(
+    file = "data/raw_data/raw_data_covid_2023.csv",
+    show_col_types = FALSE
+  )
+
+raw_data_covid_2024 <-
+  read_csv(
+    file = "data/raw_data/raw_data_covid_2024.csv",
+    show_col_types = FALSE
+  )
 #switch setting of local system time for converting date in data cleaning, 
 #please mute this sentence if not needed on your computer
 loc <- Sys.getlocale("LC_TIME")
 Sys.setlocale("LC_TIME", "C") 
 
 #switch the character formed time to date format and select information needed
-cleaned_data <-
-  clean_names(raw_data) |>
+cleaned_data_homeless <-
+  clean_names(raw_data_homeless) |>
   mutate(date_mmm_yy = as.factor(date_mmm_yy)) |>
   mutate(date_mmm_yy = paste("01",date_mmm_yy,sep="-")) |>
   mutate(date_mmm_yy = strptime(date_mmm_yy,format="%d-%b-%y")) |>
   mutate(date_mmm_yy = as.Date(date_mmm_yy, format = "%Y-%m-%d"))
-cleaned_data#take a look at the cleaned data for checking
+cleaned_data_homeless#take a look at the cleaned data for checking
 
-cleaned_data <- na.omit(cleaned_data)
+cleaned_data_homeless <- na.omit(cleaned_data_homeless)
 
-cleaned_data <- cleaned_data %>%
+cleaned_data_homeless <- cleaned_data_homeless %>%
   filter(date_mmm_yy != "2024-01-01")
 
 #set local time back to original setting, please mute this sentence if not needed on your computer
@@ -47,9 +76,33 @@ Sys.setlocale("LC_TIME", loc)
 
 #### Save data ####
 write_csv(
-  x = cleaned_data,
-  file = "data/cleaned_data.csv"
+  x = cleaned_data_homeless,
+  file = "data/cleaned_data_homeless.csv"
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ####summarize data for figures####
 

@@ -1,10 +1,9 @@
 ---
 #### Preamble ####
 # Purpose: Simulate and generate a dataset for shelter dynamic information in
-#          Toronto at the year of 2018
-# Date: 12 March 2024
-# Contact:lindayx.sun@mail.utoronto.ca, yiyi.feng@mail.utoronto.ca
-# Author: Yingxvan Sun, Yiyi Feng
+# Author: Yiyi Feng
+# Date: 16th April 2024
+# Contact: yiyi.feng@mail.utoronto.ca
 # Pre-requisites: no pre-requisites 
 # License: MIT
 #Other information: Need to install packages"tidyverse", and "lubridate".
