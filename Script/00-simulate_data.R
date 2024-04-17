@@ -72,6 +72,50 @@ simulated_data <- simulated_data %>%
   )
 
 # Write simulated data to a CSV file for further analysis
-write_csv(simulated_data, "data/simulated_data.csv")
+write_csv(simulated_data, "data/simulated_data/simulated_homeless_data.csv")
 
+#### Generate data for number of people infected COVID####
+# Set the seed for reproducibility
+set.seed(2)
 
+# Define the years and months
+years <- 2020:2024
+months <- month.abb
+
+# Create an empty matrix to store the simulated data
+simulated_data <- matrix(NA, nrow = length(years), ncol = length(months) + 1)
+
+# Set the column names
+colnames(simulated_data) <- c("Year", months)
+
+# Fill in the years
+simulated_data[, "Year"] <- years
+
+# Simulate the number of people infected by COVID-19
+for (i in 1:length(years)) {
+  for (j in 1:length(months)) {
+    if (years[i] < 2024 | (years[i] == 2024 & j <= 2)) {
+      if (years[i] %in% c(2021, 2022)) {
+        simulated_data[i, j + 1] <- round(abs(rnorm(1, mean = 8000, sd = 2000)), 0)  # Higher mean for 2021 and 2022
+      } else {
+        simulated_data[i, j + 1] <- round(abs(rnorm(1, mean = 3000, sd = 1000)), 0)  # Lower mean for other years
+      }
+    } else {
+      simulated_data[i, j + 1] <- NA
+    }
+  }
+}
+
+# Set row names as sequential numbers
+rownames(simulated_data) <- 1:nrow(simulated_data)
+
+# Print the simulated data
+print(simulated_data)
+
+# Convert simulated_data to a data frame if it's not already one
+if (!is.data.frame(simulated_data)) {
+  simulated_data <- as.data.frame(simulated_data)
+}
+
+# Write simulated data to a CSV file for further analysis
+write.csv(simulated_data, "data/simulated_data/simulated_covid_data.csv", row.names = TRUE)

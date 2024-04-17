@@ -35,7 +35,3 @@ write_csv(
   file = "data/raw_data/raw_data_homeless.csv"
 )
 
-
-
-
-         
