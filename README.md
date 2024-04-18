@@ -1,8 +1,8 @@
-# Navigating Toronto’s Homelessness Landscape: A Comprehensive Data Analysis of Trends, Compositional Shifts, and Projections for the City’s Homeless Population Dynamics (2018-2023)
+# Navigating Toronto's Homelessness Landscape during Pandemic: A Analysis of the dynamics for age group composition of Toronto Homeless community change with the Spread of Covid between 2020 and 2024
 
-This paper was finished in Rstudio. It focus on finding the overall composition and trending of homeless community in Toronto from 2018 January to 2023 December, and develope a linear model to predict its trend in the future.
+This paper was finished in Rstudio. It focus on finding the relationship between the number of individuals in different homeless age groups and the number of COVID-19 cases reported, and predict the trend of homeless population in the future.
 
-**Statement of LLM usage: Paper "Overall Analysis of Homeless Community Flow in Toronto Shelter System between 2018-2023" was edited with the help of ChatGPT3.5. The chat history can be found at `llm_usage.txt`, which can be found "llm" folder under `other`. (The words produced by ChatGPT3.5 was not 100% copied to the paper since the words it produced did not meet my criteria.)
+**Statement of LLM usage: Paper "Navigating Toronto's Homelessness Landscape during Pandemic: A Analysis of the dynamics for age group composition of Toronto Homeless community change with the Spread of Covid between 2020 and 2024" was edited with the help of ChatGPT3.5. The chat history can be found at `llm_usage.txt`, which can be found "llm" folder under `other`. (The words produced by ChatGPT3.5 was not 100% copied to the paper since the words it produced did not meet my criteria.)
 
 - FIle `data` contais all of the data we generated during the study, which includes four types of data: simulated data, raw data, cleaned data, and cleaned data for figures and models.
 

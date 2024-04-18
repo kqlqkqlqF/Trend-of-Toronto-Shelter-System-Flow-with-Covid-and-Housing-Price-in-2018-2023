@@ -581,7 +581,7 @@ The summary statistics for the six linear regression models were shown in [@tbl-
  
 ```{r}
 #| label: fig-fiv
-#| fig-cap: The Linear Relationship between Number of Cases of COVID-19 and the Number of individuals use Shelter Overnight Service in Different Age Group
+#| fig-cap: The Linear Relationship between Number of Cases of COVID-19 and the Number of individuals use Shelter Overnight Service in Different Age Groups
 #| echo: false
 #| message: false
 
