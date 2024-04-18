@@ -1,9 +1,8 @@
 #### Preamble ####
 # Purpose: Test the cleaned dataset and the simulated dataset to ensure the data were cleaned and there's no unexpected errors
-# Date: 12 March 2024
-# Contact:lindayx.sun@mail.utoronto.ca, yiyi.feng@mail.utoronto.ca
-# Author: Yingxvan Sun, Yiyi Feng
-# Pre-requisites: "data/cleaned_data.csv" file, "data/simulated_data.csv". 
+# Author: Yiyi Feng
+# Date: 16th April 2024
+# Contact: yiyi.feng@mail.utoronto.ca
 # License: MIT
 #Other information: Need to install packages "testthat", "lubridate", "tidyverse", "dplyr", and "stringr".
 
@@ -14,8 +13,20 @@ library(lubridate)
 library(stringr)
 library(car)
 
+#load files
+cleaned_covid_data <-
+  read_csv(
+    file = "data/cleaned_data/cleaned_data_covid.csv",
+    show_col_types = FALSE)
+
+simulated_covid_data <-
+  read_csv(
+    file = "data/simulated_data/simulated_covid_data.csv",
+    show_col_types = FALSE)
+
+
 #### Test Homeless DATA for both Generated data and Cleaned data ####
-#### Test data ####
+
 # Define the file paths
 file_paths <- c("data/cleaned_data/cleaned_data_homeless.csv", 
                 "data/simulated_data/simulated_homeless_data.csv")

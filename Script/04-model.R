@@ -1,6 +1,6 @@
 ---
 #### Preamble ####
-# Purpose: build the linear model for the relationship between the month passes and the total number of homeless
+# Purpose: build the linear model 
 # Author: Yiyi Feng
 # Date: 16th April 2024
 # Contact: yiyi.feng@mail.utoronto.ca
@@ -15,6 +15,8 @@ library(here)
 library(tidyr)
 library(tibble)
 library(dplyr)
+library(caret)
+
 
 #### Read data ####
 cleaned_data_figtwo <-
@@ -59,20 +61,58 @@ cleaned_data_covid_long$date_mmm_yy <- dates
 # Add all columns from cleaned_data_model_filtered to cleaned_data_covid_long based on the Date_mm_dd column
 cleaned_data_covid_long_merged <- merge(cleaned_data_covid_long, cleaned_data_model_filtered, by = "date_mmm_yy", all.x = TRUE)
 
-
-
-
-
-
-# Fit a linear model
-lm_model <- lm(total_population ~ month_number, data = cleaned_data_model)
-
-# Print the summary of the model
-summary(lm_model)
-
-#### Save model ####
-# Save the model as an .rds file to the 'models' folder
-saveRDS(
-  lm_model,
-  file = here("model", "linear_model_month.rds")
+#### Save data ####
+write_csv(
+  x = cleaned_data_covid_long_merged,
+  file = "data/cleaned_data/cleaned_data_model.csv"
 )
+
+# Define outcome variable
+outcome_variable <- "Cases"
+
+# Define predictor variables for each age group and total homeless population
+predictor_variables <- c("ageunder16", "age16_24", "age25_44", "age45_64", "age65over", "total_population")
+
+# Create a list to store model results
+model_results <- list()
+
+# Loop through each predictor variable
+for (predictor in predictor_variables) {
+  # Define formula for the regression model
+  formula <- as.formula(paste(outcome_variable, "~", predictor))
+  
+  # Split the data into training and testing sets (70% training, 30% testing)
+  set.seed(3) # for reproducibility
+  train_index <- createDataPartition(cleaned_data_covid_long_merged$Cases, p = 0.7, list = FALSE)
+  train_data <- cleaned_data_covid_long_merged[train_index, ]
+  test_data <- cleaned_data_covid_long_merged[-train_index, ]
+  
+  # Fit the multiple linear regression model using training data
+  lm_model <- lm(formula, data = train_data)
+  
+  # Evaluate the model's performance on the test data
+  predictions <- predict(lm_model, newdata = test_data)
+  rmse <- RMSE(predictions, test_data$Cases)
+  r_squared <- R2(predictions, test_data$Cases)
+  
+  # Store model results
+  model_results[[predictor]] <- list(
+    model = lm_model,
+    rmse = rmse,
+    r_squared = r_squared
+  )
+  
+  # Save the model as an .rds file in the 'model' directory
+  saveRDS(
+    lm_model,
+    file = file.path("model", paste0("model_", predictor, ".rds"))
+  )
+}
+
+# Print model results
+for (predictor in predictor_variables) {
+  cat("Model results for", predictor, "\n")
+  print(model_results[[predictor]])
+  cat("\n")
+}
+

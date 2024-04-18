@@ -119,3 +119,4 @@ if (!is.data.frame(simulated_data)) {
 
 # Write simulated data to a CSV file for further analysis
 write.csv(simulated_data, "data/simulated_data/simulated_covid_data.csv", row.names = TRUE)
+

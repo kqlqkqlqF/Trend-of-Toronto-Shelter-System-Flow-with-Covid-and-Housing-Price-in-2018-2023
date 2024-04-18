@@ -1,16 +1,16 @@
 ---
-title: "Navigating Toronto's Homelessness Landscape: A Analysis of Toronto Shelter System Occupied Situation with the Spread of Covid and Average Housing Price in Toronto from 2018 to 2023"
+title: "Navigating Toronto's Homelessness Landscape during Pandemic: A Analysis of the dynamics for age group composition of Toronto Homeless community change with the Spread of Covid between 2020 and 2024"
 author: 
   - Yiyi Feng
 date: today
 date-format: long
-thanks: "Code and data are available at: https://github.com/kqlqkqlqF/Trend-of-Toronto-Shelter-System-Flow-with-Covid-in-2020-2023."
+thanks: "Code and data are available at: https://github.com/kqlqkqlqF/Trend-of-Toronto-Shelter-System-Flow-with-Covid-in-2020-2024.git."
 format:
   pdf:
     toc: true
     number-sections: true
 number-sections: true
-abstract: "In the context of economic struggles and the impact of the pandemic between, this analysis deeply examines the number of indivisuals recorded in Toronto's shelter system from 2018 to 2023. It explores changes in the homeless population across population groups, genders, and age groups, studying population dynamics closely, and specifically uncover the relationship between housing price, pandemic and number of homeless. A model was generated to predict the trend for the number of individuals using shelter systems in 2024-2026. The modeling predicts an increase in homelessness as the rising of housing price, emphasizing the need for proactive approaches. These discoveries reveal the necessity for more shelter facilities to address the growing challenges ahead."
+abstract: "Against the backdrop of the COVID-19 pandemic, our study examines the relationship between the number of COVID-19 cases reported in Toronto from 2020 to 2024 and the count of homeless individuals across different age groups in the city's shelter system. While it's widely recognized that pandemics tend to correlate with an increase in homelessness, their specific impact on various age demographics of the homeless population remains less explored. By generating a series of linear models, our findings reveal a weak negative correlation between the overall homeless population and reported COVID-19 cases, whereas the correlation becomes more positive with increasing age among the homeless. The models predict that as the number of COVID-19 cases decreases, the population of homeless individuals aged 45 and above is projected to decline, while those below 45 are expected to increase. This suggests a potential upward trend in the percentile of younger individuals within the homeless community in the future."
 bibliography: references11.bib
 ---
  
@@ -33,7 +33,8 @@ library(ggplot2)
 library(ggpubr)
 library(kableExtra)
 library(here)
- 
+library(dplyr)
+library(gridExtra)
 #### Read data ####
 cleaned_data_homeless <-
   read_csv(
@@ -60,12 +61,32 @@ cleaned_data_figthree <-
     file = "../data/cleaned_data/cleaned_data_fig3.csv",
     show_col_types = FALSE)
 
-cleaned_data_model <-
+
+cleaned_data_covid_long_merged <-
   read_csv(
-    file = "../data/cleaned_data_model.csv",
+    file = "../data/cleaned_data/cleaned_data_model.csv",
     show_col_types = FALSE)
+
 # Retrieve the linear model from the saved .rds file
-lm_model <- readRDS(file = here("model", "linear_model_month.rds"))
+model_age16_24 <- readRDS(file = here("model", "model_age16_24.rds"))
+
+# Retrieve the linear model from the saved .rds file
+model_age25_44 <- readRDS(file = here("model", "model_age25_44.rds"))
+
+# Retrieve the linear model from the saved .rds file
+model_age45_64 <- readRDS(file = here("model", "model_age45_64.rds"))
+
+# Retrieve the linear model from the saved .rds file
+model_age65over <- readRDS(file = here("model", "model_age65over.rds"))
+
+# Retrieve the linear model from the saved .rds file
+model_ageunder16 <- readRDS(file = here("model", "model_ageunder16.rds"))
+
+# Retrieve the linear model from the saved .rds file
+model_allpop <- readRDS(file = here("model", "model_total_population.rds"))
+
+# Retrieve the linear model from the saved .rds file
+model_age16_24 <- readRDS(file = here("model", "model_age16_24.rds"))
 
 ```
  
@@ -73,42 +94,56 @@ lm_model <- readRDS(file = here("model", "linear_model_month.rds"))
  
 Undoubtedly, homeless individuals in Toronto have been facing serious challenges in accessing nighttime accommodation in recent years. As early as 2020, the general manager of the city's shelter, support, and housing administration openly stated that an average of 72 people were being turned away from shelters due to overcrowding every day, a number that only continued to rise [@homelessinTor]. By the winter of 2022, this figure had surged to a staggering 168 people [@cbcnews]. For residents living in Toronto, this reality is apparent - despite shelter occupancy rates exceeding 98% [@streetneed], a significant number of individuals still resort to sleeping on the streets, a reality witnessed firsthand by residents and students alike.
  
-Our understanding of the changing trend in the composition of the homeless community in Toronto is little. While the overall number of homeless individuals is documented, the specific demographic shifts within this population, such as variations in age groups and gender distribution, have not been comprehensively explored. Understanding these trends is essential for developing targeted interventions and resource allocation strategies to address the diverse needs of the homeless population in Toronto more effectively.
+The COVID-19 pandemic between 2020 and 2022 undoubtedly dealt a significant blow to many people's economic situations. As a result, the outbreak is widely believed to correlate positively with the overall count of homeless individuals; the more COVID-19 cases reported, the more severe the outbreak, and consequently, the higher the number of homeless people. But is this the case? By 2024, the number of COVID-19 infections has been steadily decreasing, making it more likely for us to derive more accurate analyses based on the data compared to when the pandemic first erupted. We aim not only to uncover the relationship between the overall homeless population in Toronto and the pandemic but also to explore the correlation between the number of homeless individuals across different age groups within the homeless community. There are two main reasons for proposing this idea. Firstly, while the relationship between the total homeless population and the pandemic is not a secret, we lack insights into the individual trends within the diverse homeless population. Secondly, COVID-19 has been shown to infect and lead to fatalities more easily in older adults and children with low immunity, thereby demonstrating differential infection rates across age groups. Therefore, we hope to delve into its relationship with the homeless community across different age groups.
 
-To do this, we analyzed Toronto's homeless population,  to understand the trends in this community, including changes in overall numbers and demographic composition. Leveraging data obtained from the Toronto Open Database, we aim to find the complexity and evolving trends of Toronto's homeless community. We analyze the status and demographic composition of Toronto's homeless population from 2018 to 2023, focusing on changes in status, such as the number of homeless individuals transitioning between housing and shelters, and long-term use of the shelter system, as well as demographic characteristics including gender, age, and identity.
+We started with deconstructing and analyzing the homeless population in Toronto to understand the trends within this community, including changes in total numbers and demographic composition. Utilizing data obtained from the open databases in Toronto, we examined the situation and demographic composition of the homeless population from 2018 to 2023, focusing on changes such as the number of homeless individuals transitioning between housing and shelter systems, the count of individuals utilizing the shelter system long-term, and demographic characteristics including gender, age, and status.
 
-A series of structured analyses were conducted. We begin by examining the annual counts of transitions of homeless individuals between housing, shelters, and other statuses within the Toronto shelter system from 2018 to 2023. Following this, we analyzed the composition of homeless population groups and the trend of age distribution within the homeless population. Similarly, the trend of gender composition across different population groups in the homeless community was also analyzed. Finally, we present the predictions from our linear model for future trends in the number of homeless individuals in Toronto.
+To elucidate the relationship between the number of homeless individuals in different age groups and the quantity of COVID cases, we sourced another dataset from OpenData Toronto, provided by Toronto Public Health, detailing monthly counts of infectious disease cases. This dataset spans from the initial detection and formal recording of COVID-19 cases in January 2020 to the present, documenting the number of COVID-19 infections each month. In total, we developed six models, each corresponding to the overall homeless population and the populations of five different age groups of homeless individuals, to examine their relationships with the quantity of COVID-19 cases.
 
-Our analysis reveals several key findings. Firstly, the linear model we built suggests a steady increase in the number of homeless individuals in Toronto, indicating the need for expansion of the shelter system to accommodate more people. Additionally, our examination of the data through various figures provides insights into the nuanced dynamics of homelessness in the city. These include trends in the annual counts of homeless individuals transitioning within the Toronto shelter system, trends in the composition of homeless population groups and age distribution, and trends in gender composition across different population groups within the shelter system.
- 
+Our analysis revealed two key findings. Firstly, our established linear models indicated a weak negative correlation between the overall homeless population in Toronto and the number of COVID-19 cases. However, different age groups of the homeless exhibited distinct correlation patterns, primarily manifested as a negative correlation for those under 45 years old and a positive correlation for those aged 45 and above. Additionally, according to the predictions of these models, as the spread of COVID-19 is effectively controlled in the future and cases decrease, there may be an increase in the proportion of younger individuals within the homeless population.
+
+In summary, in this study, we initially investigated the annual transitions of homeless individuals between housing, shelters, and other statuses within the shelter system in Toronto from 2018 to 2023. Subsequently, we analyzed the composition of the homeless population and trends in age and gender distribution among them. Finally, we fitted linear models between the overall homeless population and five different age groups of the homeless population with COVID-19 cases. We then analyzed the performance of these six linear regression models and made predictions for the future.
+
 Understanding the trends and dynamics of homelessness in Toronto is of paramount importance, given its implications for public policy and social welfare. By finding out the challenges faced by the Toronto shelter system, we aim to inform policymakers and stakeholders in their efforts to address homelessness in the city.
  
-[^1]: Please check https://github.com/kqlqkqlqF/Toronto-Shelter-System-Flow-between-2018-and-2023-with-Further-Predictions.git for more information.
+[^1]: Please check https://github.com/kqlqkqlqF/Trend-of-Toronto-Shelter-System-Flow-with-Covid-in-2020-2024.git for more information.
 
 # Data
 
 ## Data Source
 
-The data for this analysis was collected from the shared Toronto Open Database [@opendatatoronto]. This study utilizes and analyzes the dataset titled "About Toronto Shelter System Flow". The dataset contains lots of information on the transition of homeless individuals in Toronto shelters from January 2018 to January 2024, including gender, age, quantity, and population groups individuals belong to (such as refugees). Additionally, the dataset provides information on the number of people leaving and entering shelter systems. It is released by the Toronto Shelter, Support, and Housing Administration, updated monthly, and has a high level of credibility. Moreover, the dataset has received full marks for freshness, metadata, accessibility, completeness, and usability on the Opendatatoronto website. Therefore, we consider the content of this dataset to be highly credible and utilize it as the primary data source for this paper. However, due to the limited data available for January 2024, we did not include this portion in the data analysis, as the smaller dataset size for 2024 may lead to unexpected analysis results.
+The data for this analysis was collected from the shared Toronto Open Database [@opendatatoronto]. This study utilizes and analyzes the dataset titled "About Toronto Shelter System Flow" and "About Monthly Communicable Disease Surveillance Data". The "About Toronto Shelter System Flow" dataset contains information on the transition of homeless individuals in Toronto shelters from January 2018 to March 2024, including gender, age, quantity, and population groups individuals belong to (such as refugees). Additionally, the dataset provides information on the number of people leaving and entering shelter systems. It is released by the Toronto Shelter, Support, and Housing Administration, updated monthly, and has a high level of credibility. The  "About Monthly Communicable Disease Surveillance Data" dataset contains several communicable disease cases reported each month from 2016 January to 2024 February in Toronto, while COVID-19 cases were included since 2020 January. Both of the datasets have received full marks for freshness, metadata, accessibility, completeness, and usability on the Opendatatoronto website. Also, the  "About Toronto Shelter System Flow" was provided by the Toronto Shelter and  Support Agency, while the "About Monthly Communicable Disease Surveillance Data" dataset was published by the Toronto Public Health Agency. Therefore, we consider the content of these datasets to be highly credible and utilize it as the primary data source for this paper. Since the occurrence of COVID-19 cases spans from January 2020 to February 2024, we excluded data on homeless individuals from other periods when constructing the models to maintain consistency in the analysis process, these parts of data remained in the other parts of this study, such as overall analyzation of homeless community composition in Toronto.
 
 ## Features
 
-Upon entering shelters, individuals utilizing shelter services are required to provide their name, age, gender, and group affiliation, which are recorded in the database. This dataset only records homeless individuals using overnight shelter services and does not include those utilizing other welfare policies, such as receiving free food or vaccinations. In the data, homeless individuals are divided into five age groups: under 16, 16 to 24, 25 to 44, 45 to 64, and over 65. Gender is categorized as male, female, and transgender/non-binary/two-spirit. The population group includes chronic, refugees, families, youth, single adults, non-refugee, and indigenous. however, the indigenous group was only included in the statistics starting from January 2022, as the authors of the dataset stated their intention to collect more detailed data, hence adding the subdivision. Here, chronic refers to homeless individuals who have continuously used shelter services for more than 180 days. Regarding the documentation of homeless transitions, the dataset provides six subdivisions: newly identified, return from housing, return to shelter, moved to housing, became inactive, and actively homeless. Newly identified refers to people who entered the shelter system for the first time; returned from permanent housing refers to people who previously used the shelter system, then moved to permanent housing, and have now returned; returned to shelter refers to people who were previously using the shelter system, then did not use the system for 3 months or longer, and have now returned; moved to permanent housing refers to people who were using the shelter system and have moved to permanent housing; became Inactive refers to people who last accessed shelter services three months ago; actively homeless refers to people who have used shelter services at least one time in the past three months and have not moved to permanent housing.
+For the dataset of shelter system, upon entering shelters, individuals utilizing shelter services are required to provide their name, age, gender, and group affiliation, which are recorded in the database. This dataset only records homeless individuals using overnight shelter services and does not include those utilizing other welfare policies, such as receiving free food or vaccinations. In the data, homeless individuals are divided into five age groups: under 16, 16 to 24, 25 to 44, 45 to 64, and over 65. Gender is categorized as male, female, and transgender/non-binary/two-spirit. The population group includes chronic, refugees, families, youth, single adults, non-refugee, and indigenous. however, the indigenous group was only included in the statistics starting from January 2022, as the authors of the dataset stated their intention to collect more detailed data, hence adding the subdivision. Here, chronic refers to homeless individuals who have continuously used shelter services for more than 180 days. Regarding the documentation of homeless transitions, the dataset provides six subdivisions: newly identified, return from housing, return to shelter, moved to housing, became inactive, and actively homeless. Newly identified refers to people who entered the shelter system for the first time; returned from permanent housing refers to people who previously used the shelter system, then moved to permanent housing, and have now returned; returned to shelter refers to people who were previously using the shelter system, then did not use the system for 3 months or longer, and have now returned; moved to permanent housing refers to people who were using the shelter system and have moved to permanent housing; became Inactive refers to people who last accessed shelter services three months ago; actively homeless refers to people who have used shelter services at least one time in the past three months and have not moved to permanent housing. The data recording for COVID-19 cases is much simpler. The original dataset contained records of monthly reported numbers for various infectious diseases, including HIV, gonorrhea, and so on. We simply extracted the relevant records for COVID-19 from the original dataset and performed some basic formatting.
  
 ## Methodology
  
 The data analysis was conducted using R [@citeR], a versatile statistical programming language. We utilized a range of packages to enhance our analysis. The tidyverse [@tidy] suite of packages provided a comprehensive toolkit for efficient data manipulation and visualization. Package ggplot2 [@gg2] allowed us to create compelling visualization. The here [@here] package simplified file management within our project directory structure. Additionally, kableExtra [@kable] was employed to generate visually appealing and customizable tables, enhancing the presentation of our findings. For Bayesian analysis, we utilized the rstanarm [@rstanarm] package, which provided an elegant interface to Stan, a cutting-edge platform for statistical modeling and computation. This allowed us to estimate relationships within our data using a Bayesian framework, providing valuable insights into our research questions. Report generation was seamlessly managed using knitr [@knitr], enabling the integration of R code within our document.  Other essential packages included tibble [@tibble], stringr [@stringr], lubridate [@lubridate], janitor [@janitor], and testthat [@testthat], each contributing to various aspects of our data analysis process, from data manipulation to quality assurance.
 
-Due to the clarity of the data itself, our data cleaning process primarily focused on converting the raw data dates into the yyyy-mm-dd format and selecting the data needed for producing each figure respectively to ensure code was organized and minimize the amount of code in the final QMD file. For the first chart, intended to reveal Trends in the Annual Counts of Homeless Individuals Transitioning within the Toronto Shelter System between 2018 and 2023, we retained the data for the six transition status categories from monthly data and aggregated data within the same year for ease of subsequent chart generation. For the second chart, revealing Trends in the Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023, we removed all data except for age and population groups. Similarly, for the third chart, Trends in Gender Composition of Homeless Population Across Different Population Groups within the Toronto Shelter System between 2018 and 2023, we retained only gender and group affiliation data. The final linear model utilized the cleaned dataset for the second figure, and additional cleaning was performed. It is important to note that we excluded data from January 2024 in all chart data to avoid errors.
+As mentioned before, the data cleaning process is simple for the COVID-19 dataset, so for here we will instoduce the data processing procedure for the homeless dataset. Due to the clarity of the data itself, our data cleaning process primarily focused on converting the raw data dates into the yyyy-mm-dd format and selecting the data needed for producing each figure respectively to ensure code was organized and minimize the amount of code in the final QMD file. For the first chart, intended to reveal Trends in the Annual Counts of Homeless Individuals Transitioning within the Toronto Shelter System between 2018 and 2023, we retained the data for the six transition status categories from monthly data and aggregated data within the same year for ease of subsequent chart generation. For the second chart, revealing Trends in the Composition of Homeless Population Groups and Age Distribution within the Toronto Shelter System between 2018 and 2023, we removed all data except for age and population groups. Similarly, for the third chart, Trends in Gender Composition of Homeless Population Across Different Population Groups within the Toronto Shelter System between 2018 and 2023, we retained only gender and group affiliation data. The linear model utilized the cleaned dataset for the second figure, and additional cleaning was performed to remove all data that did not belong to the period 2020 January to 2024 February.
  
 # Model
 
 ## Model Setup
 
+Our objective is to investigate how the number of individuals belonging to different age groups using Toronto's overnight shelter system has changed with the number of COVID-19 cases from January 2020 until 2024 February, and to generate a total of six models to predict trends in this relationship. The six models are as follows: the total number of shelter users in Toronto, the number of shelter users under 16 years old, the number of shelter users aged 16 to 24, the number of shelter users aged 25 to 44, the number of shelter users aged 45 to 64, and the number of shelter users aged 65 and over. These models examine the linear relationship between these shelter user demographics and the number of COVID-19 cases. In these models, the number of homeless individuals using shelters in a given month was represented by $y_i$, while the number of COVID-19 cases recorded is represented by $x_i$ for each month $i$:
 
+\begin{align}
+y_i &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 + \beta_1 \times \mbox{AGE}_i \\
+\beta_0 &\sim \mbox{Normal}(90, 10) \\
+\beta_1 &\sim \mbox{Normal}(-0.1, 0.05)
+\sigma &\sim \mbox{Exponential}(1)
+\end{align}
+ 
+The analysis was conducted in R using the rstanarm package, which facilitates the integration of prior beliefs about parameters and the estimation of posterior distributions. We applied normal prior distributions centered around our initial estimates to the intercept ($\beta_0$) and slope ($\beta_1$) parameters, informed by exploratory data analysis. Our choice of priors aimed to capture reasonable assumptions about parameters before observing the data.
  
 ## Model Justification
- 
+
+We assume that the coefficient ($\beta_1$) since January 2020 will be positive, as it is commonly understood that the global pandemic severely impacted the economic situation worldwide, leading to increased economic and health issues for many individuals and consequently resulting in a higher number of homeless individuals. Additionally, COVID-19 is more likely to spread within the homeless population due to their lack of fixed abodes, unlike those in shelters where people are densely packed. Therefore, the slope ($\beta_1$) is our main focus for verification, as it will determine the expected changes in the number of homeless individuals across different age groups by 2024 as the impact of the pandemic diminishes. Furthermore, we believe that for different age groups, the oldest and youngest homeless populations will maintain a positive correlation with the number of COVID-19 cases. This prediction stems from the higher infection rates of the novel coronavirus among children and the elderly. Moreover, we anticipate that the intercept ($\beta_0$) will also remain positive, as many individuals have been utilizing shelter systems since January 2020. Therefore, regardless of whether the outcome shows positive or negative growth, the intercept will be positive.
+
 # Result
  
 ## Trends in Homelessness Transitioning within the Toronto Shelter System
@@ -211,7 +246,6 @@ ggplot(reshaped_data, aes(x = age_group, y = count, fill = population_group)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
  
- 
 ```
 Before beginning the analysis of [@fig-two], several points need to be explained. Firstly, within the population groups depicted in this graph, apart from refugees and non-refugees, the other options are not mutually exclusive. This means that a person can simultaneously belong to the chronic, families, and refugee groups, but cannot be a refugee and a non-refugee at the same time. This explains why the sum of individuals in these population groups exceeds the number in all population categories. Secondly, as mentioned earlier, the number of individuals in the indigenous group was only recorded starting in 2020, so the actual number of indigenous individuals who have used the shelter system should be higher than what is shown in the graph.
  
@@ -276,7 +310,7 @@ Furthermore, the data reveal temporal fluctuations in the chronic population gro
 
 ```{r}
 #| label: fig-fou
-#| fig-cap: Trends in Gender Composition of Homeless Population Across Different Population Groups within the Toronto Shelter System between 2018 and 2023
+#| fig-cap: Trends of Number of COVID-19 Cases Reported each Month Since 2020 January to 2024 Febuary
 #| echo: false
 #| message: false
 #### generate the 3rd graph ####
@@ -323,75 +357,311 @@ ggplot(data_long_filtered, aes(x = Month, y = Cases, color = factor(Year), group
         panel.grid.minor = element_line(color = "lightgray"),  # Set color of minor grid lines
         axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better visibility
 
-
 ```
+
+Trends of the Number of COVID-19 Cases demonstrated in [@fig-fou] reveal several peaks in the surge of COVID-19 infections, including from September 2020 to January 2021, February to June 2021, and November 2021 to February 2022. Although there were a few minor increases in infection numbers thereafter, overall, the number of infections has been consistently decreasing from February 2022 to February 2024.
 
 ## Result of the Model
  
 ### Model Coefficients
  
 ```{r}
-#| label: coe
-#| tbl-cap: Summary Statistics for the Coefficients of the Linear Model
+#| label: tbl-two
+#| tbl-cap: Summary Statistics for the Coefficients for the Linear Models Across different Age Groups
 #| echo: false
 
 
- 
+# Initialize an empty list to store all coefficients
+all_coefficients <- list()
+
+# Define the model names
+model_names <- c("ageunder16", "age16_24", "age25_44", "age45_64", "age65over", "total_population")
+# Loop through each model
+for (model_name in model_names) {
+  # Define the model
+  model <- switch(model_name,
+                  ageunder16 = model_ageunder16,
+                  age16_24 = model_age16_24,
+                  age25_44 = model_age25_44,
+                  age45_64 = model_age45_64,
+                  age65over = model_age65over,
+                  total_population = model_allpop)
+  
+  # Extract coefficients
+  coefficients <- coef(model)
+  
+  # Store the coefficients in the list
+  all_coefficients[[model_name]] <- coefficients
+}
+
+# Convert coefficients to a data frame
+coefficients_df <- do.call(rbind, lapply(all_coefficients, data.frame))
+
+# Add model names as a column
+coefficients_df$model <- rep(model_names, each = 2)
+
+# Rename columns
+names(coefficients_df)[1:2] <- c("Intercept", "Slope")
+
+# Round the estimates to three digits
+coefficients_df$Intercept <- round(coefficients_df$Intercept, 3)
+
+# Rearrange the values in the "Intercept" and "Slope" columns
+coefficients_df$Slope <- c(coefficients_df$Intercept[c(TRUE, FALSE)], coefficients_df$Slope[c(FALSE, TRUE)])
+coefficients_df$Intercept <- coefficients_df$Intercept[c(FALSE, TRUE)]
+
+coefficients_df <- coefficients_df[-c(7:12), ]
+
+model_names_figure <- c("under 16", "16 to 24", "25 to 44", "45 to 64", "65 over", "all population")
+
+# Remove row names
+rownames(coefficients_df) <- model_names_figure
+
+names(coefficients_df)[1:2] <- names(coefficients_df)[2:1]
+
+# Create a nicely formatted table
+coefficient_table <- kable(coefficients_df,
+                           col.names = c("Model", "Slope", "Intercept"),
+                           align = 'c') %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE,
+                position = "center")
+
+# Print the summary table
+coefficient_table
 ```
  
-**Intercept** ($\beta_0$)  : The intercept represents the ..
- 
-**Slope** ($\beta_1$)  : The slope quantifies the average change in the number of ...
+**Intercept** ($\beta_0$)  :  The intercept represents the estimated initial count of homeless individuals using shelter overnight service in Toronto at the onset of the observed period, which corresponds to the starting point of the COVID-19 infection data in January 2020. The estimated intercept value varies from 38385.833 to -12580.232 across different age groups, while the intercept for all homeless populations is 38020.076, indicating the large number of homeless in Toronto at the start of the pandemic.
+
+**Slope** ($\beta_1$)  : The slope quantifies the average change in the number of homeless individuals using shelter overnight service in Toronto as per unit increase in COVID-19 infections. Across different age groups, the slopes vary from -27.076 to 36.523, indicating that different age groups correlated with the number of cases very differently. For all homeless populations, the estimated slope indicates a decrease of approximately 3.197 homeless individuals for each additional COVID-19 infection, indicating a negative correlation.
  
 **Explanation**:
-The analysis showed a positive correlation between ..
+The analysis suggests an overall negative correlation between the rise in COVID-19 infections and the total count of homeless individuals utilizing overnight shelter services in Toronto. However, this correlation varies significantly across different age groups. While older age groups show a positive correlation with the number of cases, younger age groups exhibit a negative correlation. Interestingly, the correlation becomes more negative as the age group gets younger, while it becomes more positive as the age group gets older. The intercept for the homeless aged 65 and above is -12580.232, which seems unreasonable as the minimum count of people cannot be negative. However, with a slope of 36.523, indicating a substantial increase, we can infer that there was a sharp rise in the homeless population aged 65 and above following the outbreak of the pandemic, leading to a negative intercept in the model.
 
  
 ### Model Equation
 
-### Residuals
- 
+For all homeless population:
+\begin{align}
+y_i &= 38020.076 - 3.197 x_i + \varepsilon_i
+\end{align}
+
+For homeless under 16 years old:
+\begin{align}
+y_i &= 32736.956 - 23.509 x_i + \varepsilon_i
+\end{align}
+
+For homeless between 14 and 24:
+\begin{align}
+y_i &= 38385.833 - 27.076 x_i + \varepsilon_i
+\end{align}
+
+For homeless between 25 and 44:
+\begin{align}
+y_i &= 31935.634 - 6.175 x_i + \varepsilon_i
+\end{align}
+
+For homeless between 45 and 64:
+\begin{align}
+y_i &= 1358.041 + 2.505 x_i + \varepsilon_i
+\end{align}
+
+For homeless 64 years old above:
+\begin{align}
+y_i &= -12580.232 + 36.523 x_i + \varepsilon_i
+\end{align}
+
+### Residual
 ```{r}
 #| echo: false
 
+# Initialize an empty list to store residuals
+all_residuals <- list()
 
+# Loop through each model
+for (model_name in model_names) {
+  # Define the model
+  model <- switch(model_name,
+                  ageunder16 = model_ageunder16,
+                  age16_24 = model_age16_24,
+                  age25_44 = model_age25_44,
+                  age45_64 = model_age45_64,
+                  age65over = model_age65over,
+                  total_population = model_allpop)
+  
+  # Extract residuals
+  residuals <- resid(model)
+  
+  # Store residuals in the list
+  all_residuals[[model_name]] <- residuals
+}
+
+# Combine residuals into a single data frame
+all_residuals_df <- do.call(cbind, all_residuals)
+
+# Convert data frame to matrix
+all_residuals_matrix <- as.matrix(all_residuals_df)
+
+# Calculate summary statistics
+residuals_summary <- summary(all_residuals_matrix)
+
+# Print the summary
+print(residuals_summary)
 ```
- 
-**1. Minimum Residual**: The minimum residual is -1826.5, indicating that there is at least one observation for which the model's predicted total population was lower than the actual population by approximately 1826.5 individuals. This suggests the presence of potential outliers or factors not accounted for by the model.
- 
-**2. First Quartile Residual**: The first quartile (Q1) of the residuals is -655.6, implying that 25% of the observations have total populations that are less than 655.6 individuals below the model's prediction.
- 
-**3. Median Residual**: The median residual is 226.4, indicating that half of the observations have residuals below 226.4, suggesting a slight positive bias in the model's predictions. This means that, on average, the model tends to slightly underestimate the total population.
- 
-**4. Third Quartile Residual**: The third quartile (Q3) is 712.4, signifying that 75% of the observations have total populations within 712.4 individuals of the model's predictions or better. This suggests that the model provides reasonably accurate predictions for the majority of observations.
+Since there's a total of six models and their performance on residuals is similar, we will only discuss the residuals for the total population model.
 
-**5. Maximum Residual**: The maximum residual is 1185.1, suggesting that there is at least one observation for which the model's predicted total population was higher than the actual population by approximately 1185.1 individuals. Similar to the minimum residual, this could indicate the presence of outliers or unaccounted factors.
+**1. Minimum Residual**: The minimum residual indicates that there is at least one observation for which the model's predicted total population was lower than the actual population by approximately 13035 individuals. This suggests the presence of potential outliers or factors not accounted for by the model.
  
-**Interpretation**: The distribution of residuals provides insights into the model's performance and the presence of potential outliers or discrepancies between the model's predictions and the actual observations. Further investigation into the reasons behind significant deviations can help refine the model and improve the accuracy of its predictions. Additionally, assessing the model's assumptions, such as linearity, homoscedasticity, and normality of residuals, is essential to ensure the validity of the statistical inferences drawn from the model.
+**2. First Quartile Residual**: The first quartile (Q1) of the residuals implies that 25% of the observations have total populations that are less than 5187 individuals below the model's prediction.
  
+**3. Median Residual**: The median residual indicates that half of the observations have residuals below 1990, suggesting a slight positive bias in the model's predictions. This means that, on average, the model tends to slightly underestimate the total population.
+ 
+**4. Third Quartile Residual**:The third quartile (Q3) signifies that 75% of the observations have total populations within 1184 individuals of the model's predictions or better. This suggests that the model provides reasonably accurate predictions for the majority of observations.
+
+**5. Maximum Residual**: The maximum residual suggests that there is at least one observation for which the model's predicted total population was higher than the actual population by approximately 53404 individuals. Similar to the minimum residual, this could indicate the presence of outliers or unaccounted factors.
+ 
+**Interpretation**: The distribution of residuals has shown the models' performance and the presence of potential outliers or discrepancies between the model's predictions and the actual observations. Further investigation into the reasons behind significant deviations can help refine the model and improve the accuracy of its predictions. Notably, for homeless aged 65 and above, their 3rd quartile residual is negative, but the maximum value is similar to the other age groups. this further supported our point that the number of individuals aged 65 and above increased significantly after the outbreak of the pandemic.
+
+### Summery 
+
+```{r}
+#| label: tbl-thr
+#| tbl-cap: Summary of Statistical Coefficients for the Linear Models Across different Age Groups
+#| echo: false
+
+# Initialize an empty list to store summary data frames for each model
+summary_list <- list()
+
+# Define the model names
+model_names <- c("ageunder16", "age16_24", "age25_44", "age45_64", "age65over", "total_population")
+
+# Loop through each model
+for (model_name in model_names) {
+  # Get the summary of the current model
+  model_summary <- summary(get(paste0("model_", ifelse(model_name == "total_population", "allpop", model_name))))
+  
+  # Extract the desired values
+  std_error <- model_summary$coefficients[, "Std. Error"]
+  t_value <- model_summary$coefficients[, "t value"]
+  r_squared <- model_summary$r.squared
+  f_statistics <- model_summary$fstatistic[1:3]
+  
+  # Combine the values into a data frame
+  summary_df <- data.frame(
+    Model = model_name,
+    Std.Error = std_error,
+    t.Value = t_value,
+    R.Squared = r_squared,
+    F.Value = f_statistics[1],
+    Df.Model = f_statistics[2],
+    Df.Residuals = f_statistics[3]
+  )
+  
+  # Append the summary data frame to the list
+  summary_list[[model_name]] <- summary_df
+}
+
+# Combine all summary data frames into a single data frame
+all_models_summary <- do.call(rbind, summary_list)
+
+# Remove rows 1, 3, 5, 7, 9, and 11
+all_models_summary <- all_models_summary[c(2, 4, 6, 8, 10, 12), ]
+
+# Remove the last two columns
+all_models_summary <- all_models_summary[, -c(1, 6, 7)]
+
+row.names(all_models_summary) <- model_names_figure 
+
+# Print the table using kable
+kable(all_models_summary, format = "html")
+```
+The summary statistics for the six linear regression models were shown in [@tbl-thr].  The model for the age group under 16 demonstrates a relatively low R-squared value of 0.25, suggesting that only 25% of the variability in the number of homeless individuals is explained by the predictor variables, coupled with a high F-value of 11.96, indicating a potential lack of statistical significance. Similarly, the models for age groups 16-24, 25-44, and over 65 exhibit low R-squared values ranging from 0.003 to 0.10, with corresponding F-values suggesting limited explanatory power and statistical significance. Since all R square values were far from 1, this indicates the reliability of this model is limited. For the "under16" model, the standard error is relatively high, suggesting variability in the estimated coefficients and potentially lower precision in predicting the relationship between COVID-19 cases and homeless individuals under 16 years old. The t-value is also negative, indicating that the coefficient may not be statistically significant. Similarly, for the "16to24" and "25to44" models, the standard errors are relatively high, indicating variability in the estimates and potentially lower precision in predicting the relationship between COVID-19 cases and homeless individuals in these age groups. However, the t-values are negative for these models as well, suggesting that the coefficients may not be statistically significant. In contrast, for the "over65" model, the standard error is relatively low, suggesting higher precision in estimating the coefficients, but the t-value is also negative, indicating potential insignificance. Finally, for the "all population" model, the standard error is moderate, suggesting moderate variability in the estimates, and the t-value is negative, indicating potential insignificance. These findings show there's space for further improvement in these models.
+
 ### Graphing the Model
  
 ```{r}
 #| label: fig-fiv
-#| fig-cap: The Linear Relationship between Number of Month Passed and the Number of individuals use Shelter Overnight Service
+#| fig-cap: The Linear Relationship between Number of Cases of COVID-19 and the Number of individuals use Shelter Overnight Service in Different Age Group
 #| echo: false
 #| message: false
 
- 
+# Create an empty list to store plots
+
+plots_list <- list()
+
+# Loop through each model and create the plot
+for (i in seq_along(model_names)) {
+  model_name <- model_names[i]
+  model <- switch(model_name,
+                  ageunder16 = model_ageunder16,
+                  age16_24 = model_age16_24,
+                  age25_44 = model_age25_44,
+                  age45_64 = model_age45_64,
+                  age65over = model_age65over,
+                  total_population = model_allpop)
+  
+  # Predict values using the model
+  predictions <- predict(model, newdata = cleaned_data_covid_long_merged)
+  
+  # Create plot
+  plot <- ggplot(cleaned_data_covid_long_merged, aes(x = Cases, y = !!sym(model_name))) +
+    geom_point(alpha = 0.7, size = 3, color = "darkblue") +  # Adjust transparency, size, and color of points
+    geom_smooth(method = "lm", color = "darkorange", size = 1.5, linetype = "dashed") +  # Add linear regression line
+    labs(
+      x = "Number of Cases (COVID Infections)",
+      y = paste("Number of homeless individuals"),
+      title = paste("Model:", model_name)
+    ) +
+    theme_classic() +  # Use a minimal theme
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 10), # Rotate x axis text and adjust horizontal justification
+      axis.text.y = element_text(size = 10),
+      legend.position = "none", # Hide the legend if not necessary
+      panel.grid.major = element_line(color = "lightgray", linetype = "dotted"), # Add dotted grid lines
+      panel.grid.minor = element_blank(), # Remove minor grid lines
+      axis.line = element_line(color = "black"), # Change axis line color
+      axis.title = element_text(size = 10), # Adjust axis title size
+      plot.title = element_text(size = 10, face = "bold") # Adjust plot title size and style
+    )
+  
+  # Add the plot to the list
+  plots_list[[i]] <- plot
+}
+
+# Print each plot individually
+for (i in seq_along(plots_list)) {
+  model_name <- model_names[i]
+  print(plots_list[[i]])
+}
 ```
- 
+ In this series of figures, as previously mentioned, we observe a positive correlation between the number of homeless individuals aged 45 and above and the quantity of COVID-19 cases, whereas the count of individuals below 45 years old displays a negative correlation. Overall, the total homeless population exhibits a weak negative correlation with COVID-19 cases.
 
 # Discussion
  
 ## Summery of Findings
- 
+
+The analysis of homeless population dynamics in Toronto from 2018 to 2023 revealed fluctuating trends in shelter entry, with a peak in 2018 followed by a gradual decline and a slight increase from 2020 onwards. The data also highlighted potential housing instability through individuals returning from permanent housing to shelters, although overall stability was observed.  Chronic individuals were prevalent across age groups, indicating persistent challenges in securing permanent housing. Refugee families, often with young children, contributed to homelessness trends, while non-refugees dominated older age groups. Gender disparities were evident, with males comprising a larger proportion of the homeless population, especially among chronic individuals, while females were more represented in homeless families. These findings indicate an alarming rise in homelessness, notable shifts in demographic composition, and a gender imbalance, all highlighting the multifaceted nature of homelessness.
+
+From the generated models, we found that the overall trend in the homeless population is weakly negatively correlated with the number of COVID-19 cases, while the age group above 45 exhibits a positive correlation and the age group below 45 shows a negative correlation. Moreover, overall, older age groups of homeless individuals tend to show stronger positive correlations, while younger age groups of homeless individuals tend to exhibit stronger negative correlations. Following this pattern, as the spread of the pandemic is further controlled, the occurrence of COVID-19 cases is expected to decrease, while the total homeless population is anticipated to increase. Additionally, the proportion of older individuals within the homeless population will gradually decrease, while the proportion of younger individuals will gradually increase.
+
+
+## Things learned from this study
+
+Firstly, we found that the process of data collection, analysis, and research to reach conclusions is much more complex than we initially anticipated. In the Toronto shelter system Flow dataset we utilized, data is recorded in detail, including information on whether homeless individuals leave shelters to move into permanent housing. However, despite the comprehensive nature of the data, our analysis still falls short. As we raised in the results section, we have no way of knowing where homeless individuals go or what they do after becoming inactive, making it difficult to determine whether the increase or decrease in inactive status is beneficial or detrimental. I believe that in the future, there could be further sharing of data between shelter systems, such as sharing homeless individual information across cities or provinces, which would allow us to track their movements after leaving shelters in another jurisdiction.
+
+Secondly, the proportion of child/youth homeless individuals is much higher than we anticipated, which came as a surprise. From the data, it appears that many of these young homeless individuals are refugees who are traveling with family members, with only a small fraction being residents. Additionally, around one-third of homeless children are classified as chronic, meaning they have been homeless for an extended period. These data indirectly highlight the difficulties refugees face in finding employment and obtaining legal status in a new country, which in turn affects the next generation. We hope that the government can develop relevant welfare policies for these refugee children to reduce the number of homeless children.
+
+Thirdly, conducting overall homeless population counts poses significant challenges. Firstly, many homeless individuals do not stay overnight in shelters and spend both day and night on the streets or in parks. This means that we do not have an efficient and accurate way of collecting identity information for these homeless individuals. Secondly, as mentioned earlier regarding refugee issues, many homeless individuals lack legal status or identification documents, making it difficult for staff to determine the reliability of the information they provide. Additionally, the transient nature of homelessness complicates both the accurate collection of homeless individuals' numbers and their identity information. Some individuals may be homeless today, find temporary accommodation the next day, and then suddenly lose their accommodation and resume homelessness after a few days. This instability makes it challenging to accurately collect both the number and identity information of homeless individuals.
 
 ## Limitations
  
+Although the analysis provides insights into the dynamics of homelessness in Toronto, there are still some limitations to consider. Firstly, these data primarily reflect individuals utilizing shelter services and may not capture the entire homeless population, including those living on the streets or in unstable housing conditions. Additionally, our data have limitations. For example, we cannot track the whereabouts of all homeless individuals who leave the shelter system; the data only record numbers without monitoring their activities. The reasons for individuals becoming inactive homeless may vary significantly, such as death, disappearance, or relocation, leading to confusion and ambiguity in predicting future dynamics. Thirdly, our dataset is based on the trends of homelessness from 2018 to 2023, which were affected by the multifaceted impacts of the COVID-19 pandemic, including but not limited to: increased difficulty in data collection due to social distancing measures, the health, economic, and social impacts of COVID-19 on the homeless population, and the potential closure of shelters due to the spread of the disease. These factors may reduce the effectiveness and accuracy of data collection. Moreover, we can observe a significant decrease in shelter utilization in 2020 and 2021 during the pandemic, which contradicts our initial assumptions. Therefore, we have some reservations about the reliability of the data during this period. Furthermore, there exist significant differences in sample sizes among different age groups. As the number of homeless individuals aged 65 and above is inherently low, the credibility of model predictions for this group is naturally lower compared to the 25-44 age group. However, this issue is particularly concerning because the scarcity of homeless individuals aged 65 and above is a fact, and we cannot collect a similar volume of data as we can for the 25-44 age group due to the limited presence of elderly homeless individuals.
 
+In terms of model analysis, as mentioned earlier, the COVID-19 pandemic is not the sole factor influencing the homeless population, and their correlation is unlikely to be entirely linear. The number of homeless individuals is closely tied to various factors such as economic conditions, housing prices, welfare policies, and more. These factors impose significant limitations on our models. Additionally, since the outbreak and containment of the pandemic occurred within approximately three years, our dataset and data reliability are relatively limited. This project itself is not conducive to long-term monitoring (e.g., over five to ten years), as determined by the specific form of viral epidemic. Moreover, due to the sharp increase in infection numbers during concentrated outbreaks of the virus, there is significant variability in monthly infection counts. This results in a plethora of low-infection count data points and scarce data during periods of high infection counts, affecting the overall accuracy of the model predictions.
  
 ## Future Study
- 
+
+As the homeless population continues to grow steadily and faces increasingly dire challenges in obtaining permanent housing, we urge the government to intervene urgently to expand housing capacity, reduce housing costs, and strengthen support services. Future research should explore the fundamental causes of homelessness, identify effective interventions to prevent homelessness from recurring and assess the long-term impacts of housing policies and support programs. By understanding the root causes of homelessness and implementing targeted interventions, people can be protected from homelessness, thereby reducing its occurrence at a more fundamental level. As time passes, the impact of the COVID-19 pandemic on homelessness dynamics is expected to diminish. If similar studies were to be conducted in the future, I believe it would be beneficial to first incorporate more factors, such as the average rental prices and cost of living in Toronto. Additionally, using non-linear models for prediction may yield better results. However, regardless of the approach, generating models for the homeless population poses significant challenges. Furthermore, it is essential to incorporate a wider range of comprehensive factors into our research when collecting data, which may include reasons for homelessness and dynamic trajectories, to provide deeper insights into which factors have a more profound impact on homelessness. Moreover, the government needs to establish a more comprehensive data collection and measurement system, including tracking the dynamics of inactive homeless individuals and conducting categorized surveys of homeless families. This will enable a more accurate assessment of the challenges faced by the homeless population and facilitate the development of targeted and effective measures to address these issues.
 
  
 \newpage
