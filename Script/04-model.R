@@ -1,12 +1,11 @@
 ---
 #### Preamble ####
-# Purpose: build the linear model 
+# Purpose: build the linear models 
 # Author: Yiyi Feng
 # Date: 16th April 2024
 # Contact: yiyi.feng@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: "data/cleaned_data_fig2.csv" file. 
-#Other information: Need to install packages "tidyverse" and "here".
+# Pre-requisites: "data/cleaned_data/cleaned_data_covid.csv" file and "data/cleaned_data/cleaned_data_fig2.csv" file.
 ---
 
 #### Workspace setup ####
