@@ -6,7 +6,7 @@ This paper was finished in Rstudio. It focus on finding the relationship between
 
 - FIle `data` contais all of the data we generated during the study, which includes four types of data: simulated data, raw data, cleaned data, and cleaned data for figures and models.
 
-- File `scripts` contains all scripts serving for this study. These include `00-simulate_data.R`, `01-download_data.R`, `02-data_cleaning.R`, `03-test_data.R`, and `04-model.R`.
+- File `Scripts` contains all scripts serving for this study. These include `00-simulate_data.R`, `01-download_data.R`, `02-data_cleaning.R`, `03-test_data.R`, and `04-model.R`.
 
 - File `model` contains the linear model we generated, `linear_model_month.rds`.
 
