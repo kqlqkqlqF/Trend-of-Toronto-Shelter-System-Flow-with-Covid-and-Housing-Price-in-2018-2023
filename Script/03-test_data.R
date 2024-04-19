@@ -4,7 +4,7 @@
 # Date: 16th April 2024
 # Contact: yiyi.feng@mail.utoronto.ca
 # License: MIT
-#Other information: Need to install packages "testthat", "lubridate", "tidyverse", "dplyr", and "stringr".
+#Other information: Need to install packages "testthat", "lubridate", "tidyverse", "car", and "stringr".
 
 #### Workspace setup ####
 library(tidyverse)
